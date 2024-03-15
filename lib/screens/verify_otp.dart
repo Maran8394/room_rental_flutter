@@ -150,6 +150,7 @@ class _VerifyOTPState extends State<VerifyOTP> {
                 SizedBox(height: context.gapHeight),
                 SizedBox(
                   width: context.deviceWidth,
+                  height: context.buttonHeight,
                   child: CustomTextButton(
                     text: "CONTINUE",
                     onPressed: () {
