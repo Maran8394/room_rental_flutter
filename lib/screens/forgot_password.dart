@@ -110,9 +110,10 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     },
                   ),
                 ),
-                SizedBox(height: context.gapHeight),
+                SizedBox(height: context.gapHeight2),
                 SizedBox(
                   width: context.deviceWidth,
+                  height: context.buttonHeight,
                   child: CustomTextButton(
                     text: AppLocalizations.of(context)!
                         .forgotPasswordContinue

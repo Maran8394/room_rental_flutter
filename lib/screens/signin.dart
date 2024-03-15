@@ -53,6 +53,7 @@ class _SignInState extends State<SignIn> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: BrandingColors.backgroundColor,
       body: BlocConsumer<UserBloc, UserBlocState>(
@@ -141,7 +142,7 @@ class _SignInState extends State<SignIn> {
                         return null;
                       },
                     ),
-                    SizedBox(height: context.gapHeight),
+                    SizedBox(height: context.labelGap),
                     InputWidget(
                       maxLines: 1,
                       controller: _passwordController,
@@ -179,10 +180,11 @@ class _SignInState extends State<SignIn> {
                         return null;
                       },
                     ),
-                    SizedBox(height: context.gapHeight),
+                    SizedBox(height: context.gapHeight2),
                     Center(
                       child: SizedBox(
                         width: context.deviceWidth,
+                        height: context.buttonHeight,
                         child: CustomTextButton(
                           text: AppLocalizations.of(context)!.login,
                           onPressed: () {
@@ -205,10 +207,10 @@ class _SignInState extends State<SignIn> {
                       },
                       child: Text(
                         AppLocalizations.of(context)!.forgotPassword,
-                        style: const TextStyle(
-                          color: BrandingColors.textColor,
-                          decoration: TextDecoration.underline,
-                        ),
+                        style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                              color: BrandingColors.textColor,
+                              decoration: TextDecoration.underline,
+                            ),
                       ),
                     ),
                   ],

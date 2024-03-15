@@ -1,4 +1,7 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
+import 'package:room_rental/service/storage/storage_service.dart';
 import 'package:room_rental/utils/constants/branding_colors.dart';
 import 'package:room_rental/utils/constants/routes.dart';
 import 'package:room_rental/utils/constants/styles.dart';
@@ -158,6 +161,32 @@ class _SettingsPageState extends State<SettingsPage> {
               grade: 20,
               fill: 1,
             ),
+          ),
+          ListTile(
+            tileColor: BrandingColors.cardBackgroundColor,
+            title: const Text(
+              "Logout",
+            ),
+            leading: const Icon(
+              Icons.logout_outlined,
+              color: BrandingColors.primaryColor,
+            ),
+            trailing: const Icon(
+              Icons.arrow_forward_ios_sharp,
+              color: Colors.black,
+              size: 15,
+              weight: 20,
+              grade: 20,
+              fill: 1,
+            ),
+            onTap: () async {
+              await Storage.logout();
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                Routes.signIn,
+                (route) => false,
+              );
+            },
           ),
         ],
       ),

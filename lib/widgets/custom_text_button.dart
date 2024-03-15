@@ -48,7 +48,7 @@ class CustomTextButton extends StatelessWidget {
       onPressed: onPressed,
       child: Text(
         text,
-        style: Theme.of(context).textTheme.labelLarge!.copyWith(
+        style: Theme.of(context).textTheme.titleLarge!.copyWith(
               color: texColor ?? BrandingColors.backgroundColor,
               fontWeight: FontWeight.bold,
             ),
