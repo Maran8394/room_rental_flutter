@@ -1,0 +1,12 @@
+{
+    "@@locale": "zh_HK",
+    "login":"登錄",
+    "logo":"標誌",
+    "logoSubtext":"創建您的獨家標誌",
+    "forgotPassword":"忘記密碼？",
+    "emailPlaceholder":"用户名",
+    "passwordPlaceholder":"密碼",
+    "forgotPasswordSubtext" : "輸入您的電子郵件地址",
+    "forgotPasswordContinue":" 繼續/ 發送驗證碼",
+    "languages":"語言"
+}

@@ -1,0 +1,12 @@
+{
+    "@@locale": "en",
+    "login":"Login",
+    "logo":"Logo",
+    "logoSubtext":"subtext",
+    "forgotPassword":"Forgot Password?",
+    "emailPlaceholder":"Email",
+    "passwordPlaceholder":"Password",
+    "forgotPasswordSubtext" : "Enter Email ID to verify with OTP",
+    "forgotPasswordContinue":"Continue",
+    "languages":"Languages"
+}
