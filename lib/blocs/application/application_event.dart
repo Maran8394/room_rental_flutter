@@ -21,3 +21,14 @@ class SendServiceRequestEvent extends ApplicationEvent {
     required this.referenceDocument,
   });
 }
+
+class GetPropertiesEvent extends ApplicationEvent {}
+
+class CreateBillEvent extends ApplicationEvent {
+  final Map<String, dynamic> requestData;
+  final String imagePath;
+  CreateBillEvent({
+    required this.requestData,
+    required this.imagePath,
+  });
+}

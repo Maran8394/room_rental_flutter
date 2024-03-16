@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:room_rental/extensions/media_query_extensions.dart';
 import 'package:room_rental/utils/constants/branding_colors.dart';
 import 'package:room_rental/utils/constants/styles.dart';
+import 'package:room_rental/widgets/constant_widgets.dart';
 import 'package:room_rental/widgets/input_widget.dart';
 import 'package:room_rental/widgets/required_input_label.dart';
 
@@ -24,34 +25,41 @@ class _ChangePasswordState extends State<ChangePassword> {
       ),
       body: ListView(
         padding: const EdgeInsets.only(top: 0, bottom: 10, left: 10, right: 10),
-        children: const [
+        children: [
           // old pwd
-          RequiredInputLabel(label: "Old Password"),
-          SizedBox(height: 5),
-          InputWidget(
+          const RequiredInputLabel(label: "Old Password", isRequired: true),
+          ConstantWidgets.labelSizedBox(context),
+          const InputWidget(
             hintText: "Enter Old Password",
+            obsecureText: true,
+            maxLines: 1,
           ),
-          SizedBox(height: 10),
+          ConstantWidgets.gapSizedBox(context),
 
           // new pwd
-          RequiredInputLabel(label: "New Password"),
-          SizedBox(height: 5),
-          InputWidget(
+          const RequiredInputLabel(label: "New Password", isRequired: true),
+          ConstantWidgets.labelSizedBox(context),
+          const InputWidget(
             hintText: "Enter New Password",
+            obsecureText: true,
+            maxLines: 1,
           ),
-          SizedBox(height: 10),
+          ConstantWidgets.gapSizedBox(context),
 
           // confirm pwd
-          RequiredInputLabel(label: "Confirm Password"),
-          SizedBox(height: 5),
-          InputWidget(
+          const RequiredInputLabel(label: "Confirm Password", isRequired: true),
+          ConstantWidgets.labelSizedBox(context),
+          const InputWidget(
             hintText: "Enter Confirm Password",
+            obsecureText: true,
+            maxLines: 1,
           ),
-          SizedBox(height: 10),
+          ConstantWidgets.gapSizedBox(context),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: SizedBox(
+        height: context.buttonHeight,
         width: context.deviceWidth * 0.90,
         child: FloatingActionButton.small(
           elevation: 0,

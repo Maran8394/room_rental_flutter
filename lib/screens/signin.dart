@@ -53,7 +53,6 @@ class _SignInState extends State<SignIn> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: BrandingColors.backgroundColor,
       body: BlocConsumer<UserBloc, UserBlocState>(
@@ -73,16 +72,12 @@ class _SignInState extends State<SignIn> {
               StorageKeys.userId: state.responseModel.response_data!.user_id!,
               StorageKeys.profilePic:
                   state.responseModel.response_data!.profile_pic!,
+              StorageKeys.email: state.responseModel.response_data!.email!,
+              StorageKeys.phoneNo:
+                  state.responseModel.response_data!.mobile_number!,
             };
             dialog!.dimissDialog();
-
             await Storage.setAllValue(toStore);
-
-            // Navigator.pushNamedAndRemoveUntil(
-            //   context,
-            //   Routes.dashboard,
-            //   (route) => false,
-            // );
             Navigator.popAndPushNamed(
               context,
               Routes.indexPage,

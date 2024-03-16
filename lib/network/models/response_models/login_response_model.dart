@@ -12,6 +12,7 @@ class LoginResponseData {
   final String? mobile_number;
   final String? full_name;
   final String? profile_pic;
+  final String? email;
   LoginResponseData({
     this.refresh,
     this.access,
@@ -19,6 +20,7 @@ class LoginResponseData {
     this.mobile_number,
     this.full_name,
     this.profile_pic,
+    this.email,
   });
 
   Map<String, dynamic> toMap() {
@@ -29,6 +31,7 @@ class LoginResponseData {
       'mobile_number': mobile_number,
       'full_name': full_name,
       'profile_pic': profile_pic,
+      'email': email,
     };
   }
 
@@ -40,6 +43,7 @@ class LoginResponseData {
       mobile_number: map['mobile_number'] ?? '',
       full_name: map['full_name'] ?? '',
       profile_pic: map['profile_pic'] ?? '',
+      email: map['email'] ?? '',
     );
   }
 

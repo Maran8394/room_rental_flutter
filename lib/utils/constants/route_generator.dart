@@ -79,8 +79,9 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => const SettingsPage());
 
       case Routes.createBill:
+        final args = settings.arguments as CreateBillPage;
         return MaterialPageRoute(
-          builder: (_) => const CreateBillPage(),
+          builder: (_) => CreateBillPage(billType: args.billType),
         );
       case Routes.createNewRequestPage:
         return MaterialPageRoute(builder: (_) => const NewRequestPage());

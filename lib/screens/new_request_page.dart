@@ -34,24 +34,33 @@ class _NewRequestPageState extends State<NewRequestPage> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
         children: [
-          const RequiredInputLabel(label: "Type",isRequired: true,),
+          const RequiredInputLabel(
+            label: "Type",
+            isRequired: true,
+          ),
           const SizedBox(height: 5),
           DropDownWidget(
-            selectedRequestType: selectedRequestType,
+            selectedValue: selectedRequestType,
             dropDownItems: ConstantValues.serviceRequestTypes,
           ),
           const SizedBox(height: 10),
-          const RequiredInputLabel(label: "Category",isRequired: true,),
+          const RequiredInputLabel(
+            label: "Category",
+            isRequired: true,
+          ),
           const SizedBox(height: 5),
           DropDownWidget(
-            selectedRequestType: selectedCategory,
+            selectedValue: selectedCategory,
             dropDownItems: ConstantValues.serviceCategories,
           ),
           const SizedBox(height: 10),
-          const RequiredInputLabel(label: "Priority",isRequired: true,),
+          const RequiredInputLabel(
+            label: "Priority",
+            isRequired: true,
+          ),
           const SizedBox(height: 5),
           DropDownWidget(
-            selectedRequestType: selectedPriority,
+            selectedValue: selectedPriority,
             dropDownItems: ConstantValues.priorities,
           ),
           const SizedBox(height: 10),

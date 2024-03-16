@@ -6,6 +6,7 @@ class AssetsPath {
   static const String forgotPassword = "assets/images/forgot_password.svg";
   static const String verifyOTP = "assets/images/verify_otp.svg";
   static const String resetPassword = "assets/images/reset_password.svg";
+  static const String lanlord = "assets/images/landlord.png";
 
   // Icons
   static const String userAvatarIcon = "assets/icons/user.svg";

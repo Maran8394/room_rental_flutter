@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:room_rental/extensions/media_query_extensions.dart';
 import 'package:room_rental/utils/constants/branding_colors.dart';
 import 'package:room_rental/utils/constants/styles.dart';
+import 'package:room_rental/widgets/constant_widgets.dart';
 import 'package:room_rental/widgets/input_widget.dart';
 import 'package:room_rental/widgets/required_input_label.dart';
 
@@ -25,34 +26,29 @@ class _EditPersonalDetailsPageState extends State<EditPersonalDetailsPage> {
       ),
       body: ListView(
         padding: const EdgeInsets.only(top: 0, bottom: 10, left: 10, right: 10),
-        children: const [
+        children: [
           // Name
-          RequiredInputLabel(label: "Name"),
-          SizedBox(height: 5),
-          InputWidget(),
-          SizedBox(height: 10),
-
-          // User ID
-          RequiredInputLabel(label: "User ID"),
-          SizedBox(height: 5),
-          InputWidget(readOnly: true),
-          SizedBox(height: 10),
+          const RequiredInputLabel(label: "Name"),
+          ConstantWidgets.labelSizedBox(context),
+          const InputWidget(),
+          ConstantWidgets.gapSizedBox(context),
 
           // Email
-          RequiredInputLabel(label: "Email ID"),
-          SizedBox(height: 5),
-          InputWidget(readOnly: true),
-          SizedBox(height: 10),
+          const RequiredInputLabel(label: "Email ID"),
+          ConstantWidgets.labelSizedBox(context),
+          const InputWidget(readOnly: true),
+          ConstantWidgets.gapSizedBox(context),
 
           // Phone
-          RequiredInputLabel(label: "Phone"),
-          SizedBox(height: 5),
-          InputWidget(),
-          SizedBox(height: 10),
+          const RequiredInputLabel(label: "Phone"),
+          ConstantWidgets.labelSizedBox(context),
+          const InputWidget(),
+          ConstantWidgets.gapSizedBox(context),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: SizedBox(
+        height: context.buttonHeight,
         width: context.deviceWidth * 0.90,
         child: FloatingActionButton.small(
           elevation: 0,

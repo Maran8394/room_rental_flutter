@@ -1,8 +1,17 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:room_rental/blocs/application/application_bloc.dart';
 import 'package:room_rental/extensions/media_query_extensions.dart';
+import 'package:room_rental/models/response_models/property_model.dart';
+import 'package:room_rental/models/response_models/rooms_data_model.dart';
+import 'package:room_rental/models/response_models/tenant_rental_record_model.dart';
 import 'package:room_rental/screens/index_page.dart';
+import 'package:room_rental/service/api_service/api_urls.dart';
 import 'package:room_rental/utils/constants/constant_values.dart';
 import 'package:room_rental/utils/constants/routes.dart';
+import 'package:room_rental/widgets/constant_widgets.dart';
 import 'package:room_rental/widgets/month_dropdown.dart';
 import 'package:room_rental/widgets/property_card.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -36,6 +45,8 @@ class _DashboardState extends State<Dashboard> {
       selectedLabel = "OverAll";
       selectedLabelPrice = "40";
     });
+
+    context.read<ApplicationBloc>().add(GetPropertiesEvent());
   }
 
   List<_ChartData> _getData() {
@@ -106,7 +117,7 @@ class _DashboardState extends State<Dashboard> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 15),
         children: [
-          const SizedBox(height: 10),
+          ConstantWidgets.gapSizedBox(context),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -134,7 +145,7 @@ class _DashboardState extends State<Dashboard> {
             ],
           ),
           const HorizontalCardListView(),
-          const SizedBox(height: 10),
+          ConstantWidgets.gapSizedBox(context),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -210,88 +221,121 @@ class _DashboardState extends State<Dashboard> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          ConstantWidgets.gapSizedBox(context),
           Text(
             "My Stay",
             style: ConstantStyles.bodyTitleStyle(context),
           ),
-          const SizedBox(height: 10),
-          SizedBox(
-            height: context.deviceHeight / 2,
-            child: PageView.builder(
-              controller: _propertyPageController,
-              scrollDirection: Axis.horizontal,
-              itemCount: propertysCount,
-              onPageChanged: (index) {
+          ConstantWidgets.labelSizedBox(context),
+          BlocBuilder<ApplicationBloc, ApplicationState>(
+            builder: (context, state) {
+              if (state is GetPropertiesSuccess) {
+                return propertiesList(state.response..response_data);
+              } else {
+                return const Center(child: Text("Something is wrong!"));
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget propertiesList(TenantRentalRecordList response) {
+    int? itemsCount = response.response_data!.length;
+    String apiBaseUrl = ApiUrls.domain;
+    return Column(
+      children: [
+        SizedBox(
+          height: context.deviceHeight * 0.5,
+          child: PageView.builder(
+            controller: _propertyPageController,
+            scrollDirection: Axis.horizontal,
+            itemCount: itemsCount,
+            onPageChanged: (index) {
+              setState(() {
+                currentPropertyIndex = index;
+              });
+            },
+            itemBuilder: (context, page) {
+              PropertyModel singlePropertyModel =
+                  response.response_data!.elementAt(page).property!;
+              List<TenantRoomDataModel?>? roomDataModel =
+                  response.response_data!.elementAt(page).room;
+              List<String> roomNames = roomDataModel
+                      ?.map((room) => room?.room_name ?? '')
+                      .toList() ??
+                  [];
+
+              String decodedText =
+                  utf8.decode(singlePropertyModel.address!.runes.toList());
+
+              String cleanedAddress =
+                  decodedText.replaceAll(RegExp(r'[^\w\s]'), '');
+
+              return PropertyCard(
+                propertyImageUrl:
+                    apiBaseUrl + singlePropertyModel.images!.first!.image!,
+                flatNo: roomNames.join(", "),
+                address: cleanedAddress,
+              );
+            },
+          ),
+        ),
+        ConstantWidgets.gapSizedBox(context),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+              onPressed: () {
+                _propertyPageController.previousPage(
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.ease,
+                );
                 setState(() {
-                  currentPropertyIndex = index;
+                  selectedIndex = _propertyPageController.page!.toInt();
                 });
               },
-              itemBuilder: (context, page) {
-                return const PropertyCard(
-                  propertyImageUrl:
-                      "https://s3-alpha-sig.figma.com/img/706f/8d1b/069751d7c4b9151092ee301ae814fe76?Expires=1710720000&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=ANyci-udGzN3-qG4Xu8Az~jwAKxtOTvTi0aMeBOEFj2xnqVHEixRuNT6e-uNkbkavr8fMxbXkL6IDSmNjF~DiKsw7qsxrJawckmJipH0CuWn61IA-2ko5i7VQOc79AxeQYMOltTg8l-g7trtBrY0sBQUeNcOPLwr-iE7kbP~qxRM0xv3EOQmYGhwZ5SdszUb2jZ3mJi-ndTx48dpecWKwyCC1lbzhgLTaUKCIAkagCoiNoMmtP3MojjwYEAuRX0ZRwmc-NLpfx1uz70N4pJSTo8WrKroaRtRNTmqAvil-KTCzGvoxa5mY34dvGgD6J0lTSNij4-Ld-kM05YIiOhcaw__",
-                  flatNo: "C-13-2",
-                  address:
-                      "Ampa Avenue, 3rd street, North street avenue, Maximus Road, Hong Kong - 12AS2341",
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                onPressed: () {
-                  _propertyPageController.previousPage(
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.ease,
-                  );
-                  setState(() {
-                    selectedIndex = _propertyPageController.page!.toInt();
-                  });
-                },
-                icon: const Icon(
-                  Icons.arrow_back_ios_new,
-                  color: BrandingColors.primaryColor,
-                ),
+              icon: const Icon(
+                Icons.arrow_back_ios_new,
+                color: BrandingColors.primaryColor,
               ),
-              Row(
-                children: List.generate(
-                  propertysCount,
-                  (index) => Container(
-                    height: 20,
-                    width: 22.5,
-                    margin: const EdgeInsets.only(right: 5),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: (currentPropertyIndex == index)
-                          ? BrandingColors.primaryColor
-                          : BrandingColors.containerBorderColor,
-                    ),
+            ),
+            Row(
+              children: List.generate(
+                itemsCount,
+                (index) => Container(
+                  height: context.deviceHeight * 0.025,
+                  width: context.deviceWidth * 0.04,
+                  margin: const EdgeInsets.only(right: 5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: (currentPropertyIndex == index)
+                        ? BrandingColors.primaryColor
+                        : BrandingColors.containerBorderColor,
                   ),
                 ),
               ),
-              IconButton(
-                onPressed: () {
-                  _propertyPageController.nextPage(
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.ease,
-                  );
-                  setState(() {
-                    selectedIndex = _propertyPageController.page!.toInt();
-                  });
-                },
-                icon: const Icon(
-                  Icons.arrow_forward_ios,
-                  color: BrandingColors.primaryColor,
-                ),
-              )
-            ],
-          )
-        ],
-      ),
+            ),
+            IconButton(
+              onPressed: () {
+                _propertyPageController.nextPage(
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.ease,
+                );
+                setState(() {
+                  selectedIndex = _propertyPageController.page!.toInt();
+                });
+              },
+              icon: const Icon(
+                Icons.arrow_forward_ios,
+                color: BrandingColors.primaryColor,
+              ),
+            ),
+          ],
+        ),
+        ConstantWidgets.gapSizedBox(context),
+      ],
     );
   }
 }

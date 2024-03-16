@@ -4,4 +4,7 @@ class ApiUrls {
   static const String signup = "$domain/api/create-user";
   static const String forgotPassword = "$domain/api/forgot-password";
   static const String resetPassword = "$domain/api/reset-password";
+
+  static const String getProperties = "$domain/api/user/properties/";
+  static const String createBill = "$domain/api/bills/create";
 }

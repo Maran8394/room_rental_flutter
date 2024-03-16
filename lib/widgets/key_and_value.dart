@@ -25,7 +25,7 @@ class KeyAndValue extends StatelessWidget {
           ),
         ),
         Expanded(
-          flex: 2,
+          flex: 3,
           child: Text(
             valueString,
             style: ConstantStyles.bodyContentStyle(context),

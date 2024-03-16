@@ -1,9 +1,13 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:room_rental/blocs/cubits/user_data/user_data_cubit.dart';
 import 'package:room_rental/service/storage/storage_service.dart';
+import 'package:room_rental/utils/constants/assets_path.dart';
 import 'package:room_rental/utils/constants/branding_colors.dart';
 import 'package:room_rental/utils/constants/routes.dart';
+import 'package:room_rental/utils/constants/storage_keys.dart';
 import 'package:room_rental/utils/constants/styles.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -14,6 +18,16 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  String? fullName;
+  String? email;
+  String? profilePic;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<UserDataCubit>().getUserData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,27 +44,11 @@ class _SettingsPageState extends State<SettingsPage> {
       body: ListView(
         padding: const EdgeInsets.only(top: 0, bottom: 10, left: 10, right: 10),
         children: [
-          Center(
-            child: CircleAvatar(
-              radius: MediaQuery.of(context).size.height * 0.06,
-              backgroundImage: const NetworkImage(
-                "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=3569&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-              ),
-            ),
-          ),
-          Center(
-            child: Text(
-              "Maran",
-              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-          ),
-          const Center(
-            child: Text("maran8394@gmail.com"),
-          ),
+          // UserData
+          userData(),
           const SizedBox(height: 20),
+
+          // Lists
           ListTile(
             tileColor: BrandingColors.cardBackgroundColor,
             title: const Text(
@@ -191,5 +189,51 @@ class _SettingsPageState extends State<SettingsPage> {
         ],
       ),
     );
+  }
+
+  Widget userData() {
+    return BlocBuilder<UserDataCubit, UserDataState>(
+      builder: (context, state) {
+        if (state is UserData) {
+          return Column(
+            children: [
+              Center(
+                child: CircleAvatar(
+                  radius: MediaQuery.of(context).size.height * 0.06,
+                  backgroundImage:
+                      (state.profilePic != null && state.profilePic!.isNotEmpty)
+                          ? NetworkImage(
+                              state.profilePic!,
+                            )
+                          : const AssetImage(
+                              AssetsPath.lanlord,
+                            ) as ImageProvider<Object>?,
+                ),
+              ),
+              Center(
+                child: Text(
+                  state.fullName!,
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+              ),
+              Center(
+                child: Text(state.email!),
+              ),
+            ],
+          );
+        } else {
+          return const CircularProgressIndicator();
+        }
+      },
+    );
+  }
+
+  void getUserDetails() async {
+    fullName = await Storage.getValue(StorageKeys.fullName);
+    email = await Storage.getValue(StorageKeys.email);
+    profilePic = await Storage.getValue(StorageKeys.profilePic);
   }
 }

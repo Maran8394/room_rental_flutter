@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:room_rental/blocs/application/application_bloc.dart';
 import 'package:room_rental/blocs/cubits/change_locale_cubit/change_locale_cubit.dart';
+import 'package:room_rental/blocs/cubits/user_data/user_data_cubit.dart';
 import 'package:room_rental/l10n/I10n.dart';
 
 import 'package:room_rental/blocs/user_bloc/user_bloc_bloc.dart';
@@ -48,6 +49,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => ApplicationBloc(),
+        ),
+        BlocProvider(
+          create: (context) => UserDataCubit(),
         ),
       ],
       child: BlocBuilder<ChangeLocaleCubit, Locale>(

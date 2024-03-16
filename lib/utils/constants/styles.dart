@@ -8,7 +8,7 @@ class ConstantStyles {
             fontWeight: FontWeight.bold,
           );
   static TextStyle bodyContentStyle(context) =>
-      Theme.of(context).textTheme.bodySmall!.copyWith(
+      Theme.of(context).textTheme.bodyMedium!.copyWith(
             color: BrandingColors.titleColor,
           );
 }

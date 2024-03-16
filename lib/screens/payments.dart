@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:room_rental/screens/create_bill.dart';
 import 'package:room_rental/utils/constants/branding_colors.dart';
 import 'package:room_rental/utils/constants/routes.dart';
 import 'package:room_rental/utils/constants/styles.dart';
@@ -47,9 +48,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
                   const SizedBox(width: 8),
                   InkWell(
                     borderRadius: BorderRadius.circular(50),
-                    onTap: () {
-                      Navigator.pushNamed(context, Routes.createBill);
-                    },
+                    onTap: () {},
                     child: const Icon(
                       Icons.more_vert,
                       color: Colors.black,
@@ -58,7 +57,11 @@ class _PaymentsPageState extends State<PaymentsPage> {
                 ],
               ),
               onTap: () {
-                Navigator.pushNamed(context, Routes.createBill);
+                Navigator.pushNamed(
+                  context,
+                  Routes.createBill,
+                  arguments: const CreateBillPage(billType: "house_rent"),
+                );
               },
             ),
           ),
@@ -90,37 +93,13 @@ class _PaymentsPageState extends State<PaymentsPage> {
                   ),
                 ],
               ),
-              onTap: () {},
-            ),
-          ),
-          const SizedBox(height: 10),
-          Card(
-            elevation: 0,
-            color: BrandingColors.cardBackgroundColor,
-            child: ListTile(
-              leading: const Icon(
-                Icons.construction_outlined,
-                color: BrandingColors.primaryColor,
-              ),
-              title: const Text("Service"),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.error,
-                    color: BrandingColors.danger,
-                  ),
-                  const SizedBox(width: 8),
-                  InkWell(
-                    borderRadius: BorderRadius.circular(50),
-                    onTap: () {},
-                    child: const Icon(
-                      Icons.more_vert,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
-              ),
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  Routes.createBill,
+                  arguments: const CreateBillPage(billType: "electricity"),
+                );
+              },
             ),
           ),
           const SizedBox(height: 10),
@@ -151,6 +130,13 @@ class _PaymentsPageState extends State<PaymentsPage> {
                   ),
                 ],
               ),
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  Routes.createBill,
+                  arguments: const CreateBillPage(billType: "water"),
+                );
+              },
             ),
           ),
           const SizedBox(height: 30),
