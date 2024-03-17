@@ -58,7 +58,6 @@ class APIRequestService {
             }
             var streamedResponse = await request.send();
             httpResponse = await http.Response.fromStream(streamedResponse);
-            
           } else {
             // Regular POST request
             httpResponse = await http.post(
@@ -74,6 +73,7 @@ class APIRequestService {
             body: requestBody,
             headers: requestHeader,
           );
+          print(httpResponse.body);
           break;
         default:
           throw Exception('Unsupported HTTP method: $method');

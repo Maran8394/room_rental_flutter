@@ -4,8 +4,10 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:room_rental/models/response_models/create_bill_response_data.dart';
 import 'package:room_rental/models/response_models/tenant_rental_record_model.dart';
+import 'package:room_rental/network/models/response_models/change_password_model.dart';
 import 'package:room_rental/network/models/response_models/forgot_password_response_model.dart';
 import 'package:room_rental/network/models/response_models/reset_password_response_model.dart';
+import 'package:room_rental/network/models/response_models/user_data_model.dart';
 import 'package:room_rental/service/api_service/api_request_service.dart';
 import 'package:room_rental/service/api_service/api_urls.dart';
 import 'package:room_rental/network/models/response_models/login_response_model.dart';
@@ -84,18 +86,54 @@ class UserRepo {
     Uri requestUrl = Uri.parse(ApiUrls.createBill);
     setAuthToken();
 
-    // try {
-    var imageFile = File(imageUrl);
-    var response = await _apiRequestService.postRequest(
-      requestUrl,
-      requestBody,
-      (json) => CreateBillResponseData.fromMap(json["response_data"]),
-      files: [imageFile],
-      fileName: "uploaded_image",
-    );
-    return response;
-    // } catch (e) {
-    //   rethrow;
-    // }
+    try {
+      var imageFile = File(imageUrl);
+      var response = await _apiRequestService.postRequest(
+        requestUrl,
+        requestBody,
+        (json) => CreateBillResponseData.fromMap(json["response_data"]),
+        files: [imageFile],
+        fileName: "uploaded_image",
+      );
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<UserDataModel> updateUserData({
+    required Map<String, dynamic> requestBody,
+  }) async {
+    Uri requestUrl = Uri.parse(ApiUrls.userDataUpdate);
+    setAuthToken();
+
+    try {
+      var loginResponse = await _apiRequestService.putRequest<UserDataModel>(
+        requestUrl,
+        requestBody,
+        (json) => UserDataModel.fromMap(json),
+      );
+      return loginResponse;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<ChangePasswordResponseModel> changePassword({
+    required Map<String, dynamic> requestBody,
+  }) async {
+    Uri requestUrl = Uri.parse(ApiUrls.changePassword);
+    setAuthToken();
+    try {
+      var response =
+          await _apiRequestService.putRequest<ChangePasswordResponseModel>(
+        requestUrl,
+        requestBody,
+        (json) => ChangePasswordResponseModel.fromMap(json),
+      );
+      return response;
+    } catch (e) {
+      rethrow;
+    }
   }
 }

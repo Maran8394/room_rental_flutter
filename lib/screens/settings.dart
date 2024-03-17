@@ -7,7 +7,6 @@ import 'package:room_rental/service/storage/storage_service.dart';
 import 'package:room_rental/utils/constants/assets_path.dart';
 import 'package:room_rental/utils/constants/branding_colors.dart';
 import 'package:room_rental/utils/constants/routes.dart';
-import 'package:room_rental/utils/constants/storage_keys.dart';
 import 'package:room_rental/utils/constants/styles.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -25,7 +24,6 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
-    context.read<UserDataCubit>().getUserData();
   }
 
   @override
@@ -229,11 +227,5 @@ class _SettingsPageState extends State<SettingsPage> {
         }
       },
     );
-  }
-
-  void getUserDetails() async {
-    fullName = await Storage.getValue(StorageKeys.fullName);
-    email = await Storage.getValue(StorageKeys.email);
-    profilePic = await Storage.getValue(StorageKeys.profilePic);
   }
 }

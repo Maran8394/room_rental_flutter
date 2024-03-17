@@ -11,6 +11,8 @@ class LoginResponseData {
   final String? user_id;
   final String? mobile_number;
   final String? full_name;
+  final String? first_name;
+  final String? last_name;
   final String? profile_pic;
   final String? email;
   LoginResponseData({
@@ -19,6 +21,8 @@ class LoginResponseData {
     this.user_id,
     this.mobile_number,
     this.full_name,
+    this.first_name,
+    this.last_name,
     this.profile_pic,
     this.email,
   });
@@ -30,6 +34,8 @@ class LoginResponseData {
       'user_id': user_id,
       'mobile_number': mobile_number,
       'full_name': full_name,
+      'first_name': first_name,
+      'last_name': last_name,
       'profile_pic': profile_pic,
       'email': email,
     };
@@ -42,6 +48,8 @@ class LoginResponseData {
       user_id: map['user_id'] ?? '',
       mobile_number: map['mobile_number'] ?? '',
       full_name: map['full_name'] ?? '',
+      first_name: map['first_name'] ?? '',
+      last_name: map['last_name'] ?? '',
       profile_pic: map['profile_pic'] ?? '',
       email: map['email'] ?? '',
     );

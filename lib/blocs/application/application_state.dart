@@ -36,3 +36,30 @@ class CreateBillFiledState extends ApplicationState {
     required this.errorMessage,
   });
 }
+
+class UserDataUpdateInitState extends ApplicationState {}
+
+class UserDataUpdateDone extends ApplicationState {
+  final UserDataModel responseData;
+  UserDataUpdateDone({
+    required this.responseData,
+  });
+}
+
+class UserDataUpdateFailed extends ApplicationState {
+  final String errorMessage;
+  UserDataUpdateFailed({
+    required this.errorMessage,
+  });
+}
+
+class ChangePasswordInit extends ApplicationState {}
+
+class ChangePasswordDone extends ApplicationState {}
+
+class ChangePasswordFailed extends ApplicationState {
+  final String errorMessage;
+  ChangePasswordFailed({
+    required this.errorMessage,
+  });
+}

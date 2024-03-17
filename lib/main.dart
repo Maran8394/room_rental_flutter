@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
           create: (context) => ApplicationBloc(),
         ),
         BlocProvider(
-          create: (context) => UserDataCubit(),
+          create: (context) => UserDataCubit()..getUserData(),
         ),
       ],
       child: BlocBuilder<ChangeLocaleCubit, Locale>(

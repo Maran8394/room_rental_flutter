@@ -64,20 +64,20 @@ class _SignInState extends State<SignIn> {
             );
           }
           if (state is SigninSuccessState) {
+            var responseData = state.responseModel.response_data!;
+
             Map<String, String> toStore = {
-              StorageKeys.accessToken:
-                  state.responseModel.response_data!.access!,
-              StorageKeys.fullName:
-                  state.responseModel.response_data!.full_name!,
-              StorageKeys.userId: state.responseModel.response_data!.user_id!,
-              StorageKeys.profilePic:
-                  state.responseModel.response_data!.profile_pic!,
-              StorageKeys.email: state.responseModel.response_data!.email!,
-              StorageKeys.phoneNo:
-                  state.responseModel.response_data!.mobile_number!,
+              StorageKeys.accessToken: responseData.access!,
+              StorageKeys.fullName: responseData.full_name!,
+              StorageKeys.userId: responseData.user_id!,
+              StorageKeys.profilePic: responseData.profile_pic!,
+              StorageKeys.email: responseData.email!,
+              StorageKeys.phoneNo: responseData.mobile_number!,
+              StorageKeys.firstName: responseData.first_name!,
+              StorageKeys.lastName: responseData.last_name!,
             };
-            dialog!.dimissDialog();
             await Storage.setAllValue(toStore);
+            dialog!.dimissDialog();
             Navigator.popAndPushNamed(
               context,
               Routes.indexPage,

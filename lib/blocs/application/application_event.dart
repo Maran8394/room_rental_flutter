@@ -32,3 +32,17 @@ class CreateBillEvent extends ApplicationEvent {
     required this.imagePath,
   });
 }
+
+class UpdateUserDataEvent extends ApplicationEvent {
+  final Map<String, dynamic> requestBody;
+  UpdateUserDataEvent({
+    required this.requestBody,
+  });
+}
+
+class ChangePasswordEvent extends ApplicationEvent {
+  final Map<String, dynamic> requestBody;
+  ChangePasswordEvent({
+    required this.requestBody,
+  });
+}

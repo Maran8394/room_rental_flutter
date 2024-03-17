@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:room_rental/models/response_models/create_bill_response_data.dart';
 import 'package:room_rental/models/response_models/tenant_rental_record_model.dart';
+import 'package:room_rental/network/models/response_models/change_password_model.dart';
+import 'package:room_rental/network/models/response_models/user_data_model.dart';
 import 'package:room_rental/network/repo/user_repo.dart';
 
 part 'application_event.dart';
@@ -10,26 +12,63 @@ class ApplicationBloc extends Bloc<ApplicationEvent, ApplicationState> {
   ApplicationBloc() : super(ApplicationInitial()) {
     on<GetPropertiesEvent>((event, emit) async {
       emit(GetPropertiesInitialState());
-      // try {
-      UserRepo repo = UserRepo();
-      TenantRentalRecordList? responseData = await repo.getProperties();
-      emit(GetPropertiesSuccess(response: responseData!));
-      // } catch (e) {
-      //   emit(GetPropertiesFailed(errorMessage: e.toString().substring(11)));
-      // }
+      try {
+        UserRepo repo = UserRepo();
+        TenantRentalRecordList? responseData = await repo.getProperties();
+        emit(GetPropertiesSuccess(response: responseData!));
+      } catch (e) {
+        emit(GetPropertiesFailed(errorMessage: e.toString().substring(11)));
+      }
     });
 
     on<CreateBillEvent>((event, emit) async {
       emit(CreateBillInitState());
+      try {
+        UserRepo repo = UserRepo();
+        CreateBillResponseData? responseData = await repo.createBill(
+          imageUrl: event.imagePath,
+          requestBody: event.requestData,
+        );
+        emit(CreateBillSuccessState(responseData: responseData));
+      } catch (e) {
+        emit(CreateBillFiledState(errorMessage: e.toString()));
+      }
+    });
+
+    on<UpdateUserDataEvent>((event, emit) async {
+      emit(UserDataUpdateInitState());
+      try {
+        UserRepo repo = UserRepo();
+        UserDataModel? responseData = await repo.updateUserData(
+          requestBody: event.requestBody,
+        );
+        emit(UserDataUpdateDone(responseData: responseData));
+      } catch (e) {
+        emit(UserDataUpdateFailed(errorMessage: e.toString()));
+      }
+    });
+
+    on<ChangePasswordEvent>((event, emit) async {
+      emit(UserDataUpdateInitState());
       // try {
       UserRepo repo = UserRepo();
-      CreateBillResponseData? responseData = await repo.createBill(
-        imageUrl: event.imagePath,
-        requestBody: event.requestData,
+      ChangePasswordResponseModel responseData = await repo.changePassword(
+        requestBody: event.requestBody,
       );
-      emit(CreateBillSuccessState(responseData: responseData));
+      if (responseData.data!.status == true) {
+        emit(ChangePasswordDone());
+      } else {
+        if (responseData.data!.has_errors!) {
+          emit(
+            ChangePasswordFailed(
+                errorMessage: responseData.errors!.first!.message!),
+          );
+        } else {
+          emit(ChangePasswordFailed(errorMessage: responseData.error!));
+        }
+      }
       // } catch (e) {
-      //   emit(CreateBillFiledState(errorMessage: e.toString()));
+      //   emit(ChangePasswordFailed(errorMessage: e.toString()));
       // }
     });
   }

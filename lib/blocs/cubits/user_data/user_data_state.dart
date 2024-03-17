@@ -8,11 +8,15 @@ final class UserDataInitial extends UserDataState {}
 
 class UserData extends UserDataState {
   final String? fullName;
+  final String? firstName;
+  final String? lastName;
   final String? email;
   final String? mobileNum;
   final String? profilePic;
   UserData({
     this.fullName,
+    this.firstName,
+    this.lastName,
     this.email,
     this.mobileNum,
     this.profilePic,

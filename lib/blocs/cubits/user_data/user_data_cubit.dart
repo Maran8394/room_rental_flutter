@@ -9,6 +9,8 @@ class UserDataCubit extends Cubit<UserDataState> {
 
   void getUserData() async {
     String? fullName = await Storage.getValue(StorageKeys.fullName);
+    String? firstName = await Storage.getValue(StorageKeys.firstName);
+    String? lastName = await Storage.getValue(StorageKeys.lastName);
     String? email = await Storage.getValue(StorageKeys.email);
     String? mobileNo = await Storage.getValue(StorageKeys.phoneNo);
     String? profilePic = await Storage.getValue(StorageKeys.profilePic);
@@ -16,6 +18,8 @@ class UserDataCubit extends Cubit<UserDataState> {
     emit(
       UserData(
         fullName: fullName,
+        firstName: firstName,
+        lastName: lastName,
         email: email,
         mobileNum: mobileNo,
         profilePic: profilePic,

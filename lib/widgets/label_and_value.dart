@@ -19,7 +19,7 @@ class LabelAndValue extends StatelessWidget {
           flex: 1,
           child: Text(
             label,
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   color: BrandingColors.primaryColor,
                 ),
           ),
@@ -28,7 +28,7 @@ class LabelAndValue extends StatelessWidget {
           flex: 2,
           child: Text(
             value,
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   color: BrandingColors.bodySmall,
                 ),
           ),
