@@ -6,10 +6,11 @@ import 'package:room_rental/models/response_models/rooms_data_model.dart';
 
 class TenantRentalRecord {
   int? id;
-  double? paid_deposit_amount;
+  dynamic paid_deposit_amount;
   bool? own_whole_property;
   String? tenancy_agreement;
   dynamic agreement_period;
+  dynamic monthly_rent;
   String? checkin_date;
   String? checkout_date;
   String? created_on;
@@ -22,6 +23,7 @@ class TenantRentalRecord {
     this.own_whole_property,
     this.tenancy_agreement,
     required this.agreement_period,
+    required this.monthly_rent,
     this.checkin_date,
     this.checkout_date,
     this.created_on,
@@ -37,6 +39,7 @@ class TenantRentalRecord {
       'own_whole_property': own_whole_property,
       'tenancy_agreement': tenancy_agreement,
       'agreement_period': agreement_period,
+      'monthly_rent': monthly_rent,
       'checkin_date': checkin_date,
       'checkout_date': checkout_date,
       'created_on': created_on,
@@ -50,7 +53,7 @@ class TenantRentalRecord {
     return TenantRentalRecord(
       id: map['id'] != null ? map['id'] as int : null,
       paid_deposit_amount: map['paid_deposit_amount'] != null
-          ? map['paid_deposit_amount'] as double
+          ? map['paid_deposit_amount'] as dynamic
           : null,
       own_whole_property: map['own_whole_property'] != null
           ? map['own_whole_property'] as bool
@@ -59,6 +62,7 @@ class TenantRentalRecord {
           ? map['tenancy_agreement'] as String
           : null,
       agreement_period: map['agreement_period'] as dynamic,
+      monthly_rent: map['monthly_rent'] as dynamic,
       checkin_date:
           map['checkin_date'] != null ? map['checkin_date'] as String : null,
       checkout_date:

@@ -46,7 +46,6 @@ class _DashboardState extends State<Dashboard> {
       selectedLabelPrice = "40";
     });
 
-    context.read<ApplicationBloc>().add(GetPropertiesEvent());
   }
 
   List<_ChartData> _getData() {

@@ -73,7 +73,6 @@ class APIRequestService {
             body: requestBody,
             headers: requestHeader,
           );
-          print(httpResponse.body);
           break;
         default:
           throw Exception('Unsupported HTTP method: $method');

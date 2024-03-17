@@ -12,13 +12,13 @@ class ApplicationBloc extends Bloc<ApplicationEvent, ApplicationState> {
   ApplicationBloc() : super(ApplicationInitial()) {
     on<GetPropertiesEvent>((event, emit) async {
       emit(GetPropertiesInitialState());
-      try {
+      // try {
         UserRepo repo = UserRepo();
         TenantRentalRecordList? responseData = await repo.getProperties();
         emit(GetPropertiesSuccess(response: responseData!));
-      } catch (e) {
-        emit(GetPropertiesFailed(errorMessage: e.toString().substring(11)));
-      }
+      // } catch (e) {
+      //   emit(GetPropertiesFailed(errorMessage: e.toString().substring(11)));
+      // }
     });
 
     on<CreateBillEvent>((event, emit) async {

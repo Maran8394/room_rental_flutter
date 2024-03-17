@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:room_rental/blocs/application/application_bloc.dart';
 import 'package:room_rental/blocs/cubits/user_data/user_data_cubit.dart';
 import 'package:room_rental/extensions/media_query_extensions.dart';
+import 'package:room_rental/models/response_models/tenant_rental_record_model.dart';
 import 'package:room_rental/utils/constants/branding_colors.dart';
 import 'package:room_rental/utils/constants/styles.dart';
 import 'package:room_rental/widgets/constant_widgets.dart';
@@ -16,10 +18,13 @@ class ContractDetails extends StatefulWidget {
 }
 
 class _ContractDetailsState extends State<ContractDetails> {
+  final PageController _propertyPageController = PageController();
+  int currentPropertyIndex = 0;
+
   @override
   void initState() {
     super.initState();
-    // context.read<UserDataCubit>().getUserData();
+    context.read<ApplicationBloc>().add(GetPropertiesEvent());
   }
 
   @override
@@ -55,38 +60,16 @@ class _ContractDetailsState extends State<ContractDetails> {
                 ),
           ),
           SizedBox(height: context.deviceHeight * 0.01),
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: BrandingColors.backgroundColor,
-              border: Border.all(color: BrandingColors.borderColor),
-            ),
-            child: Column(
-              children: [
-                const LabelAndValue(
-                  label: "Address",
-                  value:
-                      "Ampa Avenue, 3rd street, North street avenue, Maximus Road, Hong Kong - 12AS2341",
-                ),
-                ConstantWidgets.gapSizedBox(context),
-                const LabelAndValue(label: "House No.", value: "A001"),
-                ConstantWidgets.gapSizedBox(context),
-                const LabelAndValue(label: "Property Code", value: "05004"),
-                ConstantWidgets.gapSizedBox(context),
-                const LabelAndValue(
-                  label: "Agreement Period",
-                  value: "01-05-2023 to 01-06-2024",
-                ),
-                ConstantWidgets.gapSizedBox(context),
-                const LabelAndValue(label: "Rent", value: "HK\$ 124"),
-                ConstantWidgets.gapSizedBox(context),
-                const LabelAndValue(
-                    label: "Security Deposit", value: "HK\$ 100"),
-                ConstantWidgets.gapSizedBox(context),
-              ],
-            ),
+          BlocBuilder<ApplicationBloc, ApplicationState>(
+            builder: (context, state) {
+              if (state is GetPropertiesSuccess) {
+                return propertyDetails(state.response);
+              } else {
+                return const Center(child: Text("Something is wrong!"));
+              }
+            },
           ),
+
           SizedBox(height: context.deviceHeight * 0.02),
           Text(
             "Miscellaneous Provisions",
@@ -152,6 +135,80 @@ class _ContractDetailsState extends State<ContractDetails> {
           return const Text("Something is wrong!");
         }
       },
+    );
+  }
+
+  Widget propertyDetails(TenantRentalRecordList properties) {
+    List<TenantRentalRecord>? responseData = properties.response_data;
+    return Column(
+      children: [
+        SizedBox(
+          height: context.deviceHeight * 0.30,
+          child: PageView.builder(
+              controller: _propertyPageController,
+              scrollDirection: Axis.horizontal,
+              itemCount: responseData!.length,
+              onPageChanged: (index) {
+                setState(() {
+                  currentPropertyIndex = index;
+                });
+              },
+              itemBuilder: (BuildContext context, int index) {
+                TenantRentalRecord item = responseData.elementAt(index);
+                return Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: BrandingColors.backgroundColor,
+                    border: Border.all(color: BrandingColors.borderColor),
+                  ),
+                  child: Column(
+                    children: [
+                      LabelAndValue(
+                        label: "Address",
+                        value: item.property!.address!,
+                      ),
+                      ConstantWidgets.gapSizedBox(context),
+                      LabelAndValue(
+                        label: "House No.",
+                        value: item.property!.property_name!,
+                      ),
+                      ConstantWidgets.gapSizedBox(context),
+                      LabelAndValue(
+                        label: "Agreement Period",
+                        value: "${item.checkin_date} to ${item.checkout_date}",
+                      ),
+                      ConstantWidgets.gapSizedBox(context),
+                      LabelAndValue(
+                        label: "Rent",
+                        value: "HK\$ ${item.monthly_rent}",
+                      ),
+                      ConstantWidgets.gapSizedBox(context),
+                      LabelAndValue(
+                        label: "Security Deposit",
+                        value: "HK\$ ${item.paid_deposit_amount}",
+                      ),
+                      ConstantWidgets.gapSizedBox(context),
+                    ],
+                  ),
+                );
+              }),
+        ),
+        ConstantWidgets.gapSizedBox(context),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+            responseData.length,
+            (index) => Icon(
+              Icons.circle,
+              size: 15,
+              color: (currentPropertyIndex == index)
+                  ? BrandingColors.primaryColor
+                  : BrandingColors.containerBorderColor,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
