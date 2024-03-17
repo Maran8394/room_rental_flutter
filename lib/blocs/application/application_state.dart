@@ -63,3 +63,14 @@ class ChangePasswordFailed extends ApplicationState {
     required this.errorMessage,
   });
 }
+
+class ServiceRequestInit extends ApplicationState {}
+
+class ServiceRequestDone extends ApplicationState {}
+
+class ServiceRequestFailed extends ApplicationState {
+  final String errorMessage;
+  ServiceRequestFailed({
+    required this.errorMessage,
+  });
+}

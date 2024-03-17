@@ -99,12 +99,13 @@ class _ServicesPageState extends State<ServicesPage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: SizedBox(
         width: context.deviceWidth * 0.80,
+        height: context.buttonHeight,
         child: FloatingActionButton.small(
           elevation: 0,
           backgroundColor: BrandingColors.primaryColor,
           child: Text(
             "RAISE NEW REQUEST",
-            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+            style: Theme.of(context).textTheme.titleLarge!.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),

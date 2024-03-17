@@ -46,3 +46,12 @@ class ChangePasswordEvent extends ApplicationEvent {
     required this.requestBody,
   });
 }
+
+class NewServiceRequestEvent extends ApplicationEvent {
+  final Map<String, dynamic> requestData;
+  final List<String>? images;
+  NewServiceRequestEvent({
+    required this.requestData,
+    required this.images,
+  });
+}

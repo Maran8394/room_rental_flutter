@@ -17,9 +17,11 @@ class RequestedChip extends StatelessWidget {
           right: Radius.circular(50),
         ),
       ),
-      child: const Text(
+      child: Text(
         "Requested",
-        style: TextStyle(fontSize: 6, color: Colors.white),
+        style: Theme.of(context).textTheme.labelSmall!.copyWith(
+              color: Colors.white,
+            ),
       ),
     );
   }

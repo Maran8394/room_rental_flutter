@@ -101,6 +101,27 @@ class UserRepo {
     }
   }
 
+  Future<void> newServiceRequest(
+      {required Map<String, dynamic> requestBody,
+      required List<String>? imageFiles}) async {
+    Uri requestUrl = Uri.parse(ApiUrls.createServiceRequest);
+    setAuthToken();
+
+    try {
+      List<File>? files = imageFiles!.map((path) => File(path)).toList();
+
+      await _apiRequestService.postRequest(
+        requestUrl,
+        requestBody,
+        (json) => json,
+        files: files,
+        fileName: "uploaded_image",
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<UserDataModel> updateUserData({
     required Map<String, dynamic> requestBody,
   }) async {

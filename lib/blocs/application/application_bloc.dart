@@ -12,13 +12,13 @@ class ApplicationBloc extends Bloc<ApplicationEvent, ApplicationState> {
   ApplicationBloc() : super(ApplicationInitial()) {
     on<GetPropertiesEvent>((event, emit) async {
       emit(GetPropertiesInitialState());
-      // try {
+      try {
         UserRepo repo = UserRepo();
         TenantRentalRecordList? responseData = await repo.getProperties();
         emit(GetPropertiesSuccess(response: responseData!));
-      // } catch (e) {
-      //   emit(GetPropertiesFailed(errorMessage: e.toString().substring(11)));
-      // }
+      } catch (e) {
+        emit(GetPropertiesFailed(errorMessage: e.toString().substring(11)));
+      }
     });
 
     on<CreateBillEvent>((event, emit) async {
@@ -33,6 +33,19 @@ class ApplicationBloc extends Bloc<ApplicationEvent, ApplicationState> {
       } catch (e) {
         emit(CreateBillFiledState(errorMessage: e.toString()));
       }
+    });
+    on<NewServiceRequestEvent>((event, emit) async {
+      emit(ServiceRequestInit());
+      // try {
+        UserRepo repo = UserRepo();
+        await repo.newServiceRequest(
+          imageFiles: event.images!,
+          requestBody: event.requestData,
+        );
+        emit(ServiceRequestDone());
+      // } catch (e) {
+      //   emit(ServiceRequestFailed(errorMessage: e.toString()));
+      // }
     });
 
     on<UpdateUserDataEvent>((event, emit) async {

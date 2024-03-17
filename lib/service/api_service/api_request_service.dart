@@ -78,6 +78,7 @@ class APIRequestService {
           throw Exception('Unsupported HTTP method: $method');
       }
       final responseBody = json.decode(httpResponse.body);
+
       return fromMap(responseBody);
     } else {
       throw Exception('No internet connection available.');

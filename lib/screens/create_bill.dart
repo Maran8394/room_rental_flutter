@@ -244,7 +244,7 @@ class _CreateBillPageState extends State<CreateBillPage> {
               InputWidget(
                 controller: remarks,
               ),
-              SizedBox(height: size.height * 0.02),
+              ConstantWidgets.gapSizedBox(context),
 
               // upload doc
               const RequiredInputLabel(

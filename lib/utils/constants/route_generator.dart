@@ -7,7 +7,7 @@ import 'package:room_rental/screens/dashboard.dart';
 import 'package:room_rental/screens/edit_personal_details.dart';
 import 'package:room_rental/screens/index_page.dart';
 import 'package:room_rental/screens/languages.dart';
-import 'package:room_rental/screens/new_request_page.dart';
+import 'package:room_rental/screens/new_service_request_page.dart';
 import 'package:room_rental/screens/notifications.dart';
 import 'package:room_rental/screens/payments.dart';
 import 'package:room_rental/screens/personal_details.dart';
