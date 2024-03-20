@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:room_rental/network/repo/user_repo.dart';
 import 'package:room_rental/service/storage/storage_service.dart';
 import 'package:room_rental/utils/constants/storage_keys.dart';
 
@@ -6,6 +7,12 @@ part 'user_data_state.dart';
 
 class UserDataCubit extends Cubit<UserDataState> {
   UserDataCubit() : super(UserDataInitial());
+
+  void updateDeviceId(String deviceId) async {
+    UserRepo repo = UserRepo();
+    Map<String, String> requestBody = {"device_id": deviceId};
+    await repo.updateUserData(requestBody: requestBody);
+  }
 
   void getUserData() async {
     String? fullName = await Storage.getValue(StorageKeys.fullName);

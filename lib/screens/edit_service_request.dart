@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:io';
@@ -8,16 +9,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:permission_handler/permission_handler.dart';
+
 import 'package:room_rental/blocs/application/application_bloc.dart';
 import 'package:room_rental/extensions/media_query_extensions.dart';
+import 'package:room_rental/models/response_models/service_request_model.dart';
 import 'package:room_rental/models/response_models/tenant_rental_record_model.dart';
 import 'package:room_rental/screens/camera_page.dart';
+import 'package:room_rental/screens/index_page.dart';
+import 'package:room_rental/service/api_service/api_urls.dart';
 import 'package:room_rental/utils/constants/assets_path.dart';
 import 'package:room_rental/utils/constants/branding_colors.dart';
 import 'package:room_rental/utils/constants/constant_values.dart';
 import 'package:room_rental/utils/constants/methods.dart';
 import 'package:room_rental/utils/constants/routes.dart';
 import 'package:room_rental/utils/enums/state_type.dart';
+import 'package:room_rental/utils/extensions/string_extenstions.dart';
 import 'package:room_rental/widgets/constant_widgets.dart';
 import 'package:room_rental/widgets/custom_text_button.dart';
 import 'package:room_rental/widgets/dropdown_widget.dart';
@@ -25,14 +31,20 @@ import 'package:room_rental/widgets/input_widget.dart';
 import 'package:room_rental/widgets/progress_indicator.dart';
 import 'package:room_rental/widgets/required_input_label.dart';
 
-class NewRequestPage extends StatefulWidget {
-  const NewRequestPage({super.key});
+class EditServiceRequest extends StatefulWidget {
+  final ServiceRequestModel data;
+  final bool? readOnly;
+  const EditServiceRequest({
+    Key? key,
+    required this.data,
+    this.readOnly,
+  }) : super(key: key);
 
   @override
-  State<NewRequestPage> createState() => _NewRequestPageState();
+  State<EditServiceRequest> createState() => _EditServiceRequestState();
 }
 
-class _NewRequestPageState extends State<NewRequestPage> {
+class _EditServiceRequestState extends State<EditServiceRequest> {
   final _formKey = GlobalKey<FormState>();
   ProgressDialog? dialog;
   ApplicationBloc? _bloc;
@@ -44,6 +56,8 @@ class _NewRequestPageState extends State<NewRequestPage> {
 
   List<String> allowedExtension = ["png", "jpeg", "jpg"];
   List<String> selectedFilePaths = [];
+  Map<String, int> selectedFilPathIds = {};
+  List<String> removedImagesIds = [];
   bool canUpload = true;
   bool notUploaded = false;
   String? fileExtension;
@@ -54,6 +68,7 @@ class _NewRequestPageState extends State<NewRequestPage> {
   @override
   void initState() {
     super.initState();
+    setupPageData();
     dialog = ProgressDialog(context);
     _bloc = ApplicationBloc();
     _bloc!.add(GetPropertiesEvent());
@@ -72,7 +87,7 @@ class _NewRequestPageState extends State<NewRequestPage> {
       appBar: AppBar(
         centerTitle: false,
         title: Text(
-          "New Request",
+          (widget.readOnly == true) ? "Submited Request" : "Edit Request",
           style: Theme.of(context).textTheme.titleLarge!.copyWith(
                 color: BrandingColors.primaryColor,
                 fontWeight: FontWeight.bold,
@@ -90,7 +105,6 @@ class _NewRequestPageState extends State<NewRequestPage> {
             ),
             ConstantWidgets.labelSizedBox(context),
             BlocBuilder<ApplicationBloc, ApplicationState>(
-              bloc: _bloc,
               builder: (context, state) {
                 if (state is GetPropertiesSuccess) {
                   TenantRentalRecordList propertyModel = state.response;
@@ -100,25 +114,39 @@ class _NewRequestPageState extends State<NewRequestPage> {
                   for (var i = 0; i < propertiesNameList.length; i++) {
                     propertiesData[i] =
                         propertyModel.response_data!.elementAt(i);
+
+                    int? objectId =
+                        propertyModel.response_data!.elementAt(i).id;
+
+                    if (objectId.toString() ==
+                        widget.data.tenant_rental_record.toString()) {
+                      selectedProperty =
+                          propertyModel.response_data!.elementAt(i);
+                    }
                   }
-                  selectedProperty = propertyModel.response_data!.first;
 
                   return DropDownWidget(
                     menuWidth: context.deviceWidth * 0.94,
                     selectedValue: selectedProperty!.property!.property_name!,
                     dropDownItems: propertiesNameList,
-                    onChanged: (value) {
-                      int? selectedPropertyIndex =
-                          propertiesNameList.indexOf(value!);
-                      selectedProperty = propertiesData[selectedPropertyIndex];
-                    },
+                    onChanged: widget.readOnly == true
+                        ? null
+                        : (value) {
+                            int? selectedPropertyIndex =
+                                propertiesNameList.indexOf(value!);
+                            selectedProperty =
+                                propertiesData[selectedPropertyIndex];
+                          },
                   );
                 } else if (state is GetPropertiesFailed) {
                   return Center(
                     child: Text(state.errorMessage),
                   );
+                } else {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
                 }
-                return const Center(child: CircularProgressIndicator());
               },
             ),
             ConstantWidgets.gapSizedBox(context),
@@ -129,11 +157,13 @@ class _NewRequestPageState extends State<NewRequestPage> {
             DropDownWidget(
               selectedValue: selectedRequestType,
               dropDownItems: ConstantValues.serviceRequestTypes,
-              onChanged: (val) {
-                setState(() {
-                  selectedRequestType = val!;
-                });
-              },
+              onChanged: widget.readOnly == true
+                  ? null
+                  : (val) {
+                      setState(() {
+                        selectedRequestType = val!;
+                      });
+                    },
             ),
             ConstantWidgets.gapSizedBox(context),
 
@@ -146,11 +176,13 @@ class _NewRequestPageState extends State<NewRequestPage> {
             DropDownWidget(
               selectedValue: selectedCategory,
               dropDownItems: ConstantValues.serviceCategories,
-              onChanged: (val) {
-                setState(() {
-                  selectedCategory = val!;
-                });
-              },
+              onChanged: widget.readOnly == true
+                  ? null
+                  : (val) {
+                      setState(() {
+                        selectedCategory = val!;
+                      });
+                    },
             ),
             ConstantWidgets.gapSizedBox(context),
 
@@ -162,11 +194,13 @@ class _NewRequestPageState extends State<NewRequestPage> {
             DropDownWidget(
               selectedValue: selectedPriority,
               dropDownItems: ConstantValues.priorities,
-              onChanged: (val) {
-                setState(() {
-                  selectedPriority = val!;
-                });
-              },
+              onChanged: widget.readOnly == true
+                  ? null
+                  : (val) {
+                      setState(() {
+                        selectedPriority = val!;
+                      });
+                    },
             ),
             ConstantWidgets.gapSizedBox(context),
 
@@ -176,6 +210,7 @@ class _NewRequestPageState extends State<NewRequestPage> {
             InputWidget(
               maxLines: 3,
               controller: _descriptionController,
+              readOnly: widget.readOnly,
             ),
             ConstantWidgets.gapSizedBox(context),
             const RequiredInputLabel(label: "Upload Reference Document"),
@@ -280,18 +315,18 @@ class _NewRequestPageState extends State<NewRequestPage> {
             BlocListener<ApplicationBloc, ApplicationState>(
               bloc: _bloc,
               listener: (context, state) {
-                if (state is ServiceRequestInit) {
+                if (state is UpdateServiceRequestInit) {
                   dialog!.showAlertDialog(
                     BrandingColors.primaryColor,
                   );
-                } else if (state is ServiceRequestFailed) {
+                } else if (state is UpdateServiceRequestFailed) {
                   dialog!.dimissDialog();
                   ConstantWidgets.showAlert(
                     context,
                     state.errorMessage,
                     StateType.error,
                   );
-                } else if (state is ServiceRequestDone) {
+                } else if (state is UpdateServiceRequestDone) {
                   dialog!.dimissDialog();
 
                   ConstantWidgets.showAlert(
@@ -299,12 +334,17 @@ class _NewRequestPageState extends State<NewRequestPage> {
                     "Success",
                     StateType.success,
                   ).then((value) {
-                    Navigator.pop(context);
+                    Navigator.popAndPushNamed(
+                      context,
+                      Routes.indexPage,
+                      arguments: const IndexingPage(selectedIndex: 2),
+                    );
                   });
                 }
               },
               child: CustomTextButton(
                 text: "DONE",
+                isDisabled: widget.readOnly,
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     Map<String, dynamic> requestData = {
@@ -314,10 +354,14 @@ class _NewRequestPageState extends State<NewRequestPage> {
                       "priority": selectedPriority.toLowerCase(),
                       "description": _descriptionController.text.trim(),
                     };
+                    final osFilePaths = selectedFilePaths
+                        .where((item) => !_isImageFile(item))
+                        .toList();
                     _bloc!.add(
-                      NewServiceRequestEvent(
+                      UpdateServiceRequestEvent(
+                        objectId: widget.data.id.toString(),
                         requestData: requestData,
-                        images: selectedFilePaths,
+                        images: osFilePaths.isNotEmpty ? osFilePaths : [],
                       ),
                     );
                   } else {
@@ -332,58 +376,6 @@ class _NewRequestPageState extends State<NewRequestPage> {
         ),
       ),
     );
-  }
-
-  Widget imageCard(index) => Stack(
-        children: [
-          SizedBox(
-            width: context.deviceWidth * 0.25,
-            height: context.deviceHeight * 0.25,
-            child: (getFileName(selectedFilePaths.elementAt(index)) != "pdf")
-                ? Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: _isImageFile(selectedFilePaths.elementAt(index))
-                        ? Image.network(
-                            selectedFilePaths.elementAt(index),
-                            fit: BoxFit.contain,
-                          )
-                        : Image.file(
-                            File(selectedFilePaths.elementAt(index)),
-                            fit: BoxFit.contain,
-                          ),
-                  )
-                : SvgPicture.asset(
-                    AssetsPath.pdfSVGIcon,
-                    height: context.deviceHeight * 0.18,
-                    width: context.deviceHeight * 0.2,
-                  ),
-          ),
-          Positioned(
-            right: 0,
-            top: 0 - 2,
-            child: InkWell(
-              onTap: () {
-                setState(() {
-                  selectedFilePaths.removeAt(index);
-                  if (selectedFilePaths.isEmpty) {
-                    canUpload = true;
-                  }
-                });
-              },
-              child: const Icon(
-                Icons.cancel,
-                color: Colors.red,
-              ),
-            ),
-          )
-        ],
-      );
-  bool _isImageFile(String filePath) {
-    if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
-      return true;
-    } else {
-      return false;
-    }
   }
 
   Future<void> showUploadFile(BuildContext context) async {
@@ -545,4 +537,75 @@ class _NewRequestPageState extends State<NewRequestPage> {
       },
     );
   }
+
+  void setupPageData() {
+    setState(() {
+      selectedRequestType = widget.data.service_type!.titleCase;
+      selectedCategory = widget.data.catergory!.titleCase;
+      selectedPriority = widget.data.priority!.titleCase;
+      var c =
+          widget.data.files!.map((e) => "${ApiUrls.domain}${e.file}").toList();
+      selectedFilePaths.addAll(c);
+      canUpload = false;
+      if (widget.data.description != null &&
+          widget.data.description!.isNotEmpty) {
+        _descriptionController.text = widget.data.description!;
+      }
+    });
+  }
+
+  bool _isImageFile(String filePath) {
+    if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Widget imageCard(index) => Stack(
+        children: [
+          SizedBox(
+            width: context.deviceWidth * 0.25,
+            height: context.deviceHeight * 0.25,
+            child: (getFileName(selectedFilePaths.elementAt(index)) != "pdf")
+                ? Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: _isImageFile(selectedFilePaths.elementAt(index))
+                        ? Image.network(
+                            selectedFilePaths.elementAt(index),
+                            fit: BoxFit.contain,
+                          )
+                        : Image.file(
+                            File(selectedFilePaths.elementAt(index)),
+                            fit: BoxFit.contain,
+                          ),
+                  )
+                : SvgPicture.asset(
+                    AssetsPath.pdfSVGIcon,
+                    height: context.deviceHeight * 0.18,
+                    width: context.deviceHeight * 0.2,
+                  ),
+          ),
+          if (widget.readOnly != true)
+            Positioned(
+              right: 0,
+              top: 0 - 2,
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    selectedFilePaths.removeAt(index);
+                    if (selectedFilePaths.isEmpty) {
+                      canUpload = true;
+                    }
+                    removedImagesIds.add(index.toString());
+                  });
+                },
+                child: const Icon(
+                  Icons.cancel,
+                  color: Colors.red,
+                ),
+              ),
+            )
+        ],
+      );
 }

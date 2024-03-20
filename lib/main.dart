@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_import
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,6 +10,7 @@ import 'package:room_rental/l10n/I10n.dart';
 
 import 'package:room_rental/blocs/user_bloc/user_bloc_bloc.dart';
 import 'package:room_rental/network/repo/user_repo.dart';
+import 'package:room_rental/service/push_notification_service.dart';
 import 'package:room_rental/service/storage/storage_service.dart';
 import 'package:room_rental/utils/constants/branding_colors.dart';
 import 'package:room_rental/utils/constants/methods.dart';
@@ -16,11 +19,18 @@ import 'package:room_rental/utils/constants/routes.dart';
 import 'package:room_rental/utils/constants/storage_keys.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter/foundation.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  PushNotificationService ser = PushNotificationService();
+  ser.init();
   var token = await Storage.getValue(StorageKeys.accessToken);
   bool isTknExpired = isTokenExpired(token);
+
   runApp(
     BlocProvider(
       create: (context) => ChangeLocaleCubit(),

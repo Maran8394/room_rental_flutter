@@ -39,6 +39,12 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   }
 
   @override
+  void dispose() {
+    _bloc!.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: BrandingColors.backgroundColor,

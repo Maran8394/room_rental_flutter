@@ -7,6 +7,22 @@ final class ApplicationInitial extends ApplicationState {}
 
 class GetPropertiesInitialState extends ApplicationState {}
 
+class GetServiceRequestInit extends ApplicationState {}
+
+class GetServiceRequestDone extends ApplicationState {
+  final ServiceRequestListData responseData;
+  GetServiceRequestDone({
+    required this.responseData,
+  });
+}
+
+class GetServiceRequestFailed extends ApplicationState {
+  final String errorMessage;
+  GetServiceRequestFailed({
+    required this.errorMessage,
+  });
+}
+
 class GetPropertiesSuccess extends ApplicationState {
   final TenantRentalRecordList response;
   GetPropertiesSuccess({
@@ -71,6 +87,28 @@ class ServiceRequestDone extends ApplicationState {}
 class ServiceRequestFailed extends ApplicationState {
   final String errorMessage;
   ServiceRequestFailed({
+    required this.errorMessage,
+  });
+}
+
+class UpdateServiceRequestInit extends ApplicationState {}
+
+class UpdateServiceRequestDone extends ApplicationState {}
+
+class UpdateServiceRequestFailed extends ApplicationState {
+  final String errorMessage;
+  UpdateServiceRequestFailed({
+    required this.errorMessage,
+  });
+}
+
+class ChangeServiceRequestStatusInit extends ApplicationState {}
+
+class ChangeServiceRequestStatusDone extends ApplicationState {}
+
+class ChangeServiceRequestStatusFailed extends ApplicationState {
+  final String errorMessage;
+  ChangeServiceRequestStatusFailed({
     required this.errorMessage,
   });
 }

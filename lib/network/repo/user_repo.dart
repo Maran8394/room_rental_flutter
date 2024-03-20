@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:room_rental/models/response_models/create_bill_response_data.dart';
+import 'package:room_rental/models/response_models/service_request_list.dart';
 import 'package:room_rental/models/response_models/tenant_rental_record_model.dart';
 import 'package:room_rental/network/models/response_models/change_password_model.dart';
 import 'package:room_rental/network/models/response_models/forgot_password_response_model.dart';
@@ -80,6 +81,21 @@ class UserRepo {
     }
   }
 
+  Future<ServiceRequestListData>? getServiceRequests({String? month}) async {
+    Uri requestUrl = Uri.parse("${ApiUrls.getServiceRequests}?month=$month");
+    setAuthToken();
+    try {
+      var response =
+          await _apiRequestService.getRequest<ServiceRequestListData>(
+        requestUrl,
+        (json) => ServiceRequestListData.fromMap(json),
+      );
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<CreateBillResponseData> createBill(
       {required Map<String, dynamic> requestBody,
       required String imageUrl}) async {
@@ -122,6 +138,49 @@ class UserRepo {
     }
   }
 
+  Future<void> updateServiceRequest(
+      {required Map<String, dynamic> requestBody,
+      required List<String>? imageFiles,
+      required String objectId}) async {
+    Uri requestUrl = Uri.parse(ApiUrls.updateServiceRequest + objectId);
+    setAuthToken();
+    List<File>? files = [];
+
+    try {
+      if (imageFiles != null) {
+        files = imageFiles.map((path) => File(path)).toList();
+      }
+
+      await _apiRequestService.putRequest(
+        requestUrl,
+        requestBody,
+        (json) => json,
+        files: files,
+        fileName: "uploaded_image",
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> changeServiceRequestStatus(
+      {required Map<String, dynamic> requestBody,
+      required String objectId}) async {
+    Uri requestUrl =
+        Uri.parse("${ApiUrls.updateServiceRequestDataOnly}$objectId/");
+    setAuthToken();
+
+    try {
+      await _apiRequestService.putRequest(
+        requestUrl,
+        requestBody,
+        (json) => json,
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<UserDataModel> updateUserData({
     required Map<String, dynamic> requestBody,
   }) async {
@@ -129,12 +188,12 @@ class UserRepo {
     setAuthToken();
 
     try {
-      var loginResponse = await _apiRequestService.putRequest<UserDataModel>(
+      var response = await _apiRequestService.putRequest<UserDataModel>(
         requestUrl,
         requestBody,
         (json) => UserDataModel.fromMap(json),
       );
-      return loginResponse;
+      return response;
     } catch (e) {
       rethrow;
     }

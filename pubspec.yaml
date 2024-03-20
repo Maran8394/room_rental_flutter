@@ -32,6 +32,9 @@ dependencies:
   camera: ^0.10.5+9
   top_snackbar_flutter: ^3.1.0
   connectivity_plus: ^5.0.2
+  firebase_core: ^2.27.1
+  firebase_messaging: ^14.7.20
+  flutter_local_notifications: ^17.0.0
 
 dev_dependencies:
   flutter_test:

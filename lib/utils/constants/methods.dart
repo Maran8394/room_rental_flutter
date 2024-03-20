@@ -1,5 +1,8 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'dart:convert';
 
+import 'package:intl/intl.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
 String base64Decoder(String data) {
@@ -31,4 +34,10 @@ String getFileName(String filePath) {
   List<String> pathParts = filePath.split('/');
   String fileName = pathParts.last;
   return fileName;
+}
+
+String getCurrentMonth() {
+  DateTime now = DateTime.now();
+  String monthAbbreviation = DateFormat('MMM').format(now);
+  return monthAbbreviation;
 }

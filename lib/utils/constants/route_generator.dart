@@ -5,6 +5,7 @@ import 'package:room_rental/screens/contract_details.dart';
 import 'package:room_rental/screens/create_bill.dart';
 import 'package:room_rental/screens/dashboard.dart';
 import 'package:room_rental/screens/edit_personal_details.dart';
+import 'package:room_rental/screens/edit_service_request.dart';
 import 'package:room_rental/screens/index_page.dart';
 import 'package:room_rental/screens/languages.dart';
 import 'package:room_rental/screens/new_service_request_page.dart';
@@ -82,6 +83,14 @@ class RouteGenerator {
         final args = settings.arguments as CreateBillPage;
         return MaterialPageRoute(
           builder: (_) => CreateBillPage(billType: args.billType),
+        );
+      case Routes.editServiceRequest:
+        final args = settings.arguments as EditServiceRequest;
+        return MaterialPageRoute(
+          builder: (_) => EditServiceRequest(
+            data: args.data,
+            readOnly: args.readOnly,
+          ),
         );
       case Routes.createNewRequestPage:
         return MaterialPageRoute(builder: (_) => const NewRequestPage());

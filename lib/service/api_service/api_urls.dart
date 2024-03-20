@@ -7,8 +7,13 @@ class ApiUrls {
   static const String changePassword = "$domain/api/change-password";
 
   static const String getProperties = "$domain/api/user/properties/";
+  static const String getServiceRequests = "$domain/api/user/service-requests/";
   static const String createBill = "$domain/api/bills/create";
   static const String createServiceRequest =
       "$domain/api/service-requests/create";
+  static const String updateServiceRequest =
+      "$domain/api/service-requests/update/";
+  static const String updateServiceRequestDataOnly =
+      "$domain/api/service-requests/";
   static const String userDataUpdate = "$domain/api/update-user";
 }

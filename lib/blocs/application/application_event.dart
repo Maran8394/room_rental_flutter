@@ -55,3 +55,30 @@ class NewServiceRequestEvent extends ApplicationEvent {
     required this.images,
   });
 }
+
+class UpdateServiceRequestEvent extends ApplicationEvent {
+  final String objectId;
+  final Map<String, dynamic> requestData;
+  List<String>? images;
+  UpdateServiceRequestEvent({
+    required this.objectId,
+    required this.requestData,
+    this.images,
+  });
+}
+
+class ChangeServiceRequestStatusEvent extends ApplicationEvent {
+  final String objectId;
+  final Map<String, dynamic> requestData;
+  ChangeServiceRequestStatusEvent({
+    required this.objectId,
+    required this.requestData,
+  });
+}
+
+class GetServiceRequests extends ApplicationEvent {
+  final String? month;
+  GetServiceRequests({
+    this.month,
+  });
+}

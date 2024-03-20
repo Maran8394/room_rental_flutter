@@ -3,7 +3,7 @@ import 'package:room_rental/utils/constants/branding_colors.dart';
 
 class ConstantStyles {
   static TextStyle bodyTitleStyle(context) =>
-      Theme.of(context).textTheme.bodyLarge!.copyWith(
+      Theme.of(context).textTheme.titleLarge!.copyWith(
             color: BrandingColors.titleColor,
             fontWeight: FontWeight.bold,
           );

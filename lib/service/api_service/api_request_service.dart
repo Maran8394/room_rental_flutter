@@ -67,13 +67,35 @@ class APIRequestService {
             );
           }
           break;
+
         case 'PUT':
-          httpResponse = await http.put(
-            requestUrl,
-            body: requestBody,
-            headers: requestHeader,
-          );
+          if (files != null && files.isNotEmpty) {
+            // Multipart request with files
+            var request = http.MultipartRequest('PUT', requestUrl);
+            request.headers.addAll(requestHeader);
+            for (var file in files) {
+              request.files.add(await http.MultipartFile.fromPath(
+                fileName!,
+                file.path,
+              ));
+            }
+            if (requestBody.isNotEmpty) {
+              requestBody.forEach((key, value) {
+                request.fields[key] = value.toString();
+              });
+            }
+            var streamedResponse = await request.send();
+            httpResponse = await http.Response.fromStream(streamedResponse);
+          } else {
+            // Regular PUT request
+            httpResponse = await http.put(
+              requestUrl,
+              body: requestBody,
+              headers: requestHeader,
+            );
+          }
           break;
+
         default:
           throw Exception('Unsupported HTTP method: $method');
       }
@@ -109,12 +131,15 @@ class APIRequestService {
   }
 
   Future<T> putRequest<T>(Uri requestUrl, Map<String, dynamic> requestBody,
-      T Function(Map<String, dynamic> json) fromMap) async {
+      T Function(Map<String, dynamic> json) fromMap,
+      {List<File>? files, String? fileName}) async {
     return _handleRequest(
       'PUT',
       requestUrl,
       requestBody,
       fromMap,
+      files: files,
+      fileName: fileName,
     );
   }
 }

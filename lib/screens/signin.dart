@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:room_rental/blocs/cubits/user_data/user_data_cubit.dart';
 import 'package:room_rental/blocs/user_bloc/user_bloc_bloc.dart';
 import 'package:room_rental/screens/index_page.dart';
 import 'package:room_rental/service/storage/storage_service.dart';
@@ -18,6 +19,7 @@ import 'package:room_rental/widgets/custom_text_button.dart';
 import 'package:room_rental/widgets/input_widget.dart';
 import 'package:room_rental/widgets/progress_indicator.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
@@ -27,6 +29,7 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   final _formKey = GlobalKey<FormState>();
   UserRepo repo = UserRepo();
   ProgressDialog? dialog;
@@ -77,6 +80,9 @@ class _SignInState extends State<SignIn> {
               StorageKeys.lastName: responseData.last_name!,
             };
             await Storage.setAllValue(toStore);
+            _firebaseMessaging.getToken().then((token) async {
+              context.read<UserDataCubit>().updateDeviceId(token!);
+            });
             dialog!.dimissDialog();
             Navigator.popAndPushNamed(
               context,

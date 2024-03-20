@@ -11,6 +11,7 @@ class Routes {
   static const String languagesPage = "languagesPage";
   static const String paymentsPage = "paymentsPage";
   static const String servicesPage = "servicesPage";
+  static const String editServiceRequest = "editServiceRequest";
   static const String settingsPage = "settingsPage";
   static const String createBill = "createBill";
   static const String createNewRequestPage = "createNewRequestPage";

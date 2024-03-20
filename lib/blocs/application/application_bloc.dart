@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:room_rental/models/response_models/create_bill_response_data.dart';
+import 'package:room_rental/models/response_models/service_request_list.dart';
 import 'package:room_rental/models/response_models/tenant_rental_record_model.dart';
 import 'package:room_rental/network/models/response_models/change_password_model.dart';
 import 'package:room_rental/network/models/response_models/user_data_model.dart';
@@ -21,6 +22,19 @@ class ApplicationBloc extends Bloc<ApplicationEvent, ApplicationState> {
       }
     });
 
+    on<GetServiceRequests>((event, emit) async {
+      emit(GetServiceRequestInit());
+      try {
+        UserRepo repo = UserRepo();
+        ServiceRequestListData? responseData = await repo.getServiceRequests(
+          month: event.month,
+        );
+        emit(GetServiceRequestDone(responseData: responseData!));
+      } catch (e) {
+        emit(GetServiceRequestFailed(errorMessage: e.toString().substring(11)));
+      }
+    });
+
     on<CreateBillEvent>((event, emit) async {
       emit(CreateBillInitState());
       try {
@@ -34,18 +48,48 @@ class ApplicationBloc extends Bloc<ApplicationEvent, ApplicationState> {
         emit(CreateBillFiledState(errorMessage: e.toString()));
       }
     });
+
     on<NewServiceRequestEvent>((event, emit) async {
       emit(ServiceRequestInit());
-      // try {
+      try {
         UserRepo repo = UserRepo();
         await repo.newServiceRequest(
           imageFiles: event.images!,
           requestBody: event.requestData,
         );
         emit(ServiceRequestDone());
-      // } catch (e) {
-      //   emit(ServiceRequestFailed(errorMessage: e.toString()));
-      // }
+      } catch (e) {
+        emit(ServiceRequestFailed(errorMessage: e.toString()));
+      }
+    });
+
+    on<UpdateServiceRequestEvent>((event, emit) async {
+      emit(UpdateServiceRequestInit());
+      try {
+        UserRepo repo = UserRepo();
+        await repo.updateServiceRequest(
+          objectId: event.objectId,
+          imageFiles: event.images!,
+          requestBody: event.requestData,
+        );
+        emit(UpdateServiceRequestDone());
+      } catch (e) {
+        emit(UpdateServiceRequestFailed(errorMessage: e.toString()));
+      }
+    });
+
+    on<ChangeServiceRequestStatusEvent>((event, emit) async {
+      emit(ChangeServiceRequestStatusInit());
+      try {
+        UserRepo repo = UserRepo();
+        await repo.changeServiceRequestStatus(
+          objectId: event.objectId,
+          requestBody: event.requestData,
+        );
+        emit(ChangeServiceRequestStatusDone());
+      } catch (e) {
+        emit(ChangeServiceRequestStatusFailed(errorMessage: e.toString()));
+      }
     });
 
     on<UpdateUserDataEvent>((event, emit) async {
@@ -63,26 +107,26 @@ class ApplicationBloc extends Bloc<ApplicationEvent, ApplicationState> {
 
     on<ChangePasswordEvent>((event, emit) async {
       emit(UserDataUpdateInitState());
-      // try {
-      UserRepo repo = UserRepo();
-      ChangePasswordResponseModel responseData = await repo.changePassword(
-        requestBody: event.requestBody,
-      );
-      if (responseData.data!.status == true) {
-        emit(ChangePasswordDone());
-      } else {
-        if (responseData.data!.has_errors!) {
-          emit(
-            ChangePasswordFailed(
-                errorMessage: responseData.errors!.first!.message!),
-          );
+      try {
+        UserRepo repo = UserRepo();
+        ChangePasswordResponseModel responseData = await repo.changePassword(
+          requestBody: event.requestBody,
+        );
+        if (responseData.data!.status == true) {
+          emit(ChangePasswordDone());
         } else {
-          emit(ChangePasswordFailed(errorMessage: responseData.error!));
+          if (responseData.data!.has_errors!) {
+            emit(
+              ChangePasswordFailed(
+                  errorMessage: responseData.errors!.first!.message!),
+            );
+          } else {
+            emit(ChangePasswordFailed(errorMessage: responseData.error!));
+          }
         }
+      } catch (e) {
+        emit(ChangePasswordFailed(errorMessage: e.toString()));
       }
-      // } catch (e) {
-      //   emit(ChangePasswordFailed(errorMessage: e.toString()));
-      // }
     });
   }
 }
