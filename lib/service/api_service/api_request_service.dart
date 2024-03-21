@@ -109,12 +109,20 @@ class APIRequestService {
 
   Future<T> getRequest<T>(
       Uri requestUrl, T Function(Map<String, dynamic> json) fromMap) async {
-    return _handleRequest(
-      'GET',
-      requestUrl,
-      {},
-      fromMap,
-    );
+    try {
+      return _handleRequest(
+        'GET',
+        requestUrl,
+        {},
+        fromMap,
+      );
+    } catch (e) {
+      if (e is SocketException) {
+        throw Exception("Server not respond");
+      } else {
+        rethrow;
+      }
+    }
   }
 
   Future<T> postRequest<T>(Uri requestUrl, Map<String, dynamic> requestBody,

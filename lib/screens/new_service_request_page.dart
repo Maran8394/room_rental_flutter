@@ -334,56 +334,51 @@ class _NewRequestPageState extends State<NewRequestPage> {
     );
   }
 
-  Widget imageCard(index) => Stack(
-        children: [
-          SizedBox(
-            width: context.deviceWidth * 0.25,
-            height: context.deviceHeight * 0.25,
-            child: (getFileName(selectedFilePaths.elementAt(index)) != "pdf")
-                ? Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: _isImageFile(selectedFilePaths.elementAt(index))
-                        ? Image.network(
-                            selectedFilePaths.elementAt(index),
-                            fit: BoxFit.contain,
-                          )
-                        : Image.file(
-                            File(selectedFilePaths.elementAt(index)),
-                            fit: BoxFit.contain,
-                          ),
-                  )
-                : SvgPicture.asset(
-                    AssetsPath.pdfSVGIcon,
-                    height: context.deviceHeight * 0.18,
-                    width: context.deviceHeight * 0.2,
-                  ),
-          ),
-          Positioned(
-            right: 0,
-            top: 0 - 2,
-            child: InkWell(
-              onTap: () {
-                setState(() {
-                  selectedFilePaths.removeAt(index);
-                  if (selectedFilePaths.isEmpty) {
-                    canUpload = true;
-                  }
-                });
-              },
-              child: const Icon(
-                Icons.cancel,
-                color: Colors.red,
-              ),
+  Widget imageCard(index) {
+    return Stack(
+      children: [
+        SizedBox(
+          width: context.deviceWidth * 0.25,
+          height: context.deviceHeight * 0.25,
+          child: (getFileName(selectedFilePaths.elementAt(index)) != "pdf")
+              ? Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: isImageFile(selectedFilePaths.elementAt(index))
+                      ? Image.network(
+                          selectedFilePaths.elementAt(index),
+                          fit: BoxFit.contain,
+                        )
+                      : Image.file(
+                          File(selectedFilePaths.elementAt(index)),
+                          fit: BoxFit.contain,
+                        ),
+                )
+              : SvgPicture.asset(
+                  AssetsPath.pdfSVGIcon,
+                  height: context.deviceHeight * 0.18,
+                  width: context.deviceHeight * 0.2,
+                ),
+        ),
+        Positioned(
+          right: 0,
+          top: 0 - 2,
+          child: InkWell(
+            onTap: () {
+              setState(() {
+                selectedFilePaths.removeAt(index);
+                if (selectedFilePaths.isEmpty) {
+                  canUpload = true;
+                }
+              });
+            },
+            child: const Icon(
+              Icons.cancel,
+              color: Colors.red,
             ),
-          )
-        ],
-      );
-  bool _isImageFile(String filePath) {
-    if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
-      return true;
-    } else {
-      return false;
-    }
+          ),
+        )
+      ],
+    );
   }
 
   Future<void> showUploadFile(BuildContext context) async {

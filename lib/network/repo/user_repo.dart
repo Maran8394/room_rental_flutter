@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:room_rental/models/response_models/create_bill_response_data.dart';
+import 'package:room_rental/models/response_models/payment_page_model.dart';
 import 'package:room_rental/models/response_models/service_request_list.dart';
 import 'package:room_rental/models/response_models/tenant_rental_record_model.dart';
 import 'package:room_rental/network/models/response_models/change_password_model.dart';
@@ -96,19 +97,33 @@ class UserRepo {
     }
   }
 
+  Future<PaymentPageModel>? getBills({String? month}) async {
+    Uri requestUrl = Uri.parse("${ApiUrls.getBills}?month=$month");
+    setAuthToken();
+    try {
+      var response = await _apiRequestService.getRequest<PaymentPageModel>(
+        requestUrl,
+        (json) => PaymentPageModel.fromMap(json),
+      );
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<CreateBillResponseData> createBill(
       {required Map<String, dynamic> requestBody,
-      required String imageUrl}) async {
+      required List<String> imageFiles}) async {
     Uri requestUrl = Uri.parse(ApiUrls.createBill);
     setAuthToken();
 
     try {
-      var imageFile = File(imageUrl);
+      List<File> files = imageFiles.map((path) => File(path)).toList();
       var response = await _apiRequestService.postRequest(
         requestUrl,
         requestBody,
         (json) => CreateBillResponseData.fromMap(json["response_data"]),
-        files: [imageFile],
+        files: files,
         fileName: "uploaded_image",
       );
       return response;

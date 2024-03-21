@@ -41,3 +41,11 @@ String getCurrentMonth() {
   String monthAbbreviation = DateFormat('MMM').format(now);
   return monthAbbreviation;
 }
+
+ bool isImageFile(String filePath) {
+    if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+      return true;
+    } else {
+      return false;
+    }
+  }

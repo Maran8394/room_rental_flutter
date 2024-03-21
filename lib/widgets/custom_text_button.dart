@@ -11,15 +11,17 @@ class CustomTextButton extends StatelessWidget {
   final bool? needBorder;
   final Function()? onPressed;
   final bool? isDisabled;
+  final TextStyle? textStyle;
   const CustomTextButton({
     Key? key,
     required this.text,
-    this.onPressed,
-    this.isDisabled,
     this.backgroundColor,
     this.texColor,
-    this.needBorder,
     this.borderColor,
+    this.needBorder,
+    this.onPressed,
+    this.isDisabled,
+    this.textStyle,
   }) : super(key: key);
 
   @override
@@ -48,10 +50,11 @@ class CustomTextButton extends StatelessWidget {
       onPressed: onPressed,
       child: Text(
         text,
-        style: Theme.of(context).textTheme.titleLarge!.copyWith(
-              color: texColor ?? BrandingColors.backgroundColor,
-              fontWeight: FontWeight.bold,
-            ),
+        style: textStyle ??
+            Theme.of(context).textTheme.titleLarge!.copyWith(
+                  color: texColor ?? BrandingColors.backgroundColor,
+                  fontWeight: FontWeight.bold,
+                ),
       ),
     );
   }

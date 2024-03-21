@@ -16,6 +16,22 @@ class GetServiceRequestDone extends ApplicationState {
   });
 }
 
+class GetBillsDonetInit extends ApplicationState {}
+
+class GetBillsDone extends ApplicationState {
+  final PaymentPageModel responseData;
+  GetBillsDone({
+    required this.responseData,
+  });
+}
+
+class GetBillsFailed extends ApplicationState {
+  final String errorMessage;
+  GetBillsFailed({
+    required this.errorMessage,
+  });
+}
+
 class GetServiceRequestFailed extends ApplicationState {
   final String errorMessage;
   GetServiceRequestFailed({

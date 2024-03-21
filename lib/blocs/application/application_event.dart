@@ -26,7 +26,7 @@ class GetPropertiesEvent extends ApplicationEvent {}
 
 class CreateBillEvent extends ApplicationEvent {
   final Map<String, dynamic> requestData;
-  final String imagePath;
+  final List<String> imagePath;
   CreateBillEvent({
     required this.requestData,
     required this.imagePath,
@@ -79,6 +79,13 @@ class ChangeServiceRequestStatusEvent extends ApplicationEvent {
 class GetServiceRequests extends ApplicationEvent {
   final String? month;
   GetServiceRequests({
+    this.month,
+  });
+}
+
+class GetPaymentPageBillsEvent extends ApplicationEvent {
+  final String? month;
+  GetPaymentPageBillsEvent({
     this.month,
   });
 }

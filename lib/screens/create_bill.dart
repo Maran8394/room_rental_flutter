@@ -54,7 +54,7 @@ class _CreateBillPageState extends State<CreateBillPage> {
   final Map<int, TenantRentalRecord> propertiesData = {};
   final Map<int, String> roomsList = {};
   ProgressDialog? dialog;
-
+  List<String> notApplicableForRent = ["house_rent", "service"];
   TenantRentalRecord? selectedProperty;
   TenantRoomDataModel? selectedRoom;
 
@@ -131,6 +131,7 @@ class _CreateBillPageState extends State<CreateBillPage> {
               ),
               ConstantWidgets.labelSizedBox(context),
               BlocBuilder<ApplicationBloc, ApplicationState>(
+                bloc: _bloc,
                 builder: (context, state) {
                   if (state is GetPropertiesSuccess) {
                     TenantRentalRecordList propertyModel = state.response;
@@ -143,7 +144,7 @@ class _CreateBillPageState extends State<CreateBillPage> {
                           propertyModel.response_data!.elementAt(i);
                     }
                     selectedProperty = propertyModel.response_data!.first;
-                    context.read<SelectRoomCubit>().getRooms(selectedProperty!);
+
                     return DropDownWidget(
                       menuWidth: context.deviceWidth * 0.94,
                       selectedValue: selectedProperty!.property!.property_name!,
@@ -153,89 +154,124 @@ class _CreateBillPageState extends State<CreateBillPage> {
                             propertiesNameList.indexOf(value!);
                         selectedProperty =
                             propertiesData[selectedPropertyIndex];
-                        context
-                            .read<SelectRoomCubit>()
-                            .getRooms(selectedProperty!);
                       },
                     );
                   } else if (state is GetPropertiesFailed) {
                     return Center(
                       child: Text(state.errorMessage),
                     );
-                  } else {
-                    return const CircularProgressIndicator();
                   }
+                  return const Center(child: CircularProgressIndicator());
                 },
               ),
+              // BlocBuilder<ApplicationBloc, ApplicationState>(
+              //   builder: (context, state) {
+              //     if (state is GetPropertiesSuccess) {
+              //       TenantRentalRecordList propertyModel = state.response;
+              //       List<String> propertiesNameList = propertyModel
+              //           .response_data!
+              //           .map((value) => value.property!.property_name!)
+              //           .toList();
+              //       for (var i = 0; i < propertiesNameList.length; i++) {
+              //         propertiesData[i] =
+              //             propertyModel.response_data!.elementAt(i);
+              //       }
+              //       selectedProperty = propertyModel.response_data!.first;
+              //       // context.read<SelectRoomCubit>().getRooms(selectedProperty!);
+              //       return DropDownWidget(
+              //         menuWidth: context.deviceWidth * 0.94,
+              //         selectedValue: selectedProperty!.property!.property_name!,
+              //         dropDownItems: propertiesNameList,
+              //         onChanged: (value) {
+              //           int? selectedPropertyIndex =
+              //               propertiesNameList.indexOf(value!);
+              //           selectedProperty =
+              //               propertiesData[selectedPropertyIndex];
+
+              //           // context
+              //           //     .read<SelectRoomCubit>()
+              //           //     .getRooms(selectedProperty!);
+              //         },
+              //       );
+              //     } else if (state is GetPropertiesFailed) {
+              //       return Center(
+              //         child: Text(state.errorMessage),
+              //       );
+              //     } else {
+              //       return const CircularProgressIndicator();
+              //     }
+              //   },
+              // ),
               ConstantWidgets.gapSizedBox(context),
 
               // Rooms dropdown
-              const RequiredInputLabel(
-                label: "Rooms",
-                isRequired: true,
-              ),
-              ConstantWidgets.labelSizedBox(context),
-              BlocBuilder<SelectRoomCubit, SelectRoomState>(
-                builder: (context, state) {
-                  if (state is SelectRoomSuccessState) {
-                    List<TenantRoomDataModel?>? roomListModel = state.roomData;
-                    List<String> roomList =
-                        roomListModel!.map((val) => val!.room_name!).toList();
-                    selectedRoom = roomListModel.first!;
-                    return DropDownWidget(
-                      menuWidth: context.deviceWidth * 0.94,
-                      selectedValue: roomList.first,
-                      dropDownItems: roomList,
-                      onChanged: (value) {
-                        debugPrint(value);
-                        int? selectedRoomIndex = roomList.indexOf(value!);
-                        selectedRoom =
-                            roomListModel.elementAt(selectedRoomIndex);
-                      },
-                    );
-                  }
-                  return const Center(child: Text("Something is wrong?"));
-                },
-              ),
-              ConstantWidgets.gapSizedBox(context),
+              // const RequiredInputLabel(
+              //   label: "Rooms",
+              //   isRequired: true,
+              // ),
+              // ConstantWidgets.labelSizedBox(context),
+              // BlocBuilder<SelectRoomCubit, SelectRoomState>(
+              //   builder: (context, state) {
+              //     if (state is SelectRoomSuccessState) {
+              //       List<TenantRoomDataModel?>? roomListModel = state.roomData;
+              //       List<String> roomList =
+              //           roomListModel!.map((val) => val!.room_name!).toList();
+              //       selectedRoom = roomListModel.first!;
+              //       return DropDownWidget(
+              //         menuWidth: context.deviceWidth * 0.94,
+              //         selectedValue: roomList.first,
+              //         dropDownItems: roomList,
+              //         onChanged: (value) {
+              //           debugPrint(value);
+              //           int? selectedRoomIndex = roomList.indexOf(value!);
+              //           selectedRoom =
+              //               roomListModel.elementAt(selectedRoomIndex);
+              //         },
+              //       );
+              //     }
+              //     return const Center(child: Text("Something is wrong?"));
+              //   },
+              // ),
+              // ConstantWidgets.gapSizedBox(context),
 
               // Bill Number
-              const RequiredInputLabel(
-                label: "Bill Number",
-                isRequired: true,
-              ),
-              ConstantWidgets.labelSizedBox(context),
-              InputWidget(
-                controller: billNumber,
-                validator: (dynamic value) {
-                  if (value == null || value.isEmpty) {
-                    return "";
-                  }
-                  return null;
-                },
-              ),
-              ConstantWidgets.gapSizedBox(context),
+              if (!notApplicableForRent.contains(widget.billType)) ...[
+                const RequiredInputLabel(
+                  label: "Bill Number",
+                  isRequired: true,
+                ),
+                ConstantWidgets.labelSizedBox(context),
+                InputWidget(
+                  controller: billNumber,
+                  validator: (dynamic value) {
+                    if (value == null || value.isEmpty) {
+                      return "";
+                    }
+                    return null;
+                  },
+                ),
+                ConstantWidgets.gapSizedBox(context),
 
-              // Units
-              const RequiredInputLabel(
-                label: "Units",
-                isRequired: true,
-              ),
-              ConstantWidgets.labelSizedBox(context),
-              InputWidget(
-                controller: units,
-                keyboardType: TextInputType.number,
-                validator: (dynamic value) {
-                  if (value == null || value.isEmpty) {
-                    return "";
-                  }
-                  return null;
-                },
-              ),
-              ConstantWidgets.gapSizedBox(context),
+                // Units
+                const RequiredInputLabel(
+                  label: "Units",
+                  isRequired: true,
+                ),
+                ConstantWidgets.labelSizedBox(context),
+                InputWidget(
+                  controller: units,
+                  keyboardType: TextInputType.number,
+                  validator: (dynamic value) {
+                    if (value == null || value.isEmpty) {
+                      return "";
+                    }
+                    return null;
+                  },
+                ),
+                ConstantWidgets.gapSizedBox(context),
+              ],
 
               //Remarks
-
               const RequiredInputLabel(
                 label: "Remarks",
                 isRequired: false,
@@ -246,9 +282,116 @@ class _CreateBillPageState extends State<CreateBillPage> {
               ),
               ConstantWidgets.gapSizedBox(context),
 
-              // upload doc
+              if (!notApplicableForRent.contains(widget.billType)) ...[
+                // upload doc
+                const RequiredInputLabel(
+                  label: "Upload Reference Document",
+                  isRequired: true,
+                ),
+                ConstantWidgets.labelSizedBox(context),
+                Visibility(
+                  visible: canUpload,
+                  child: GestureDetector(
+                    onTap: () {
+                      showUploadFile(context);
+                    },
+                    child: Container(
+                      height: size.height * 0.06,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: (!notUploaded)
+                              ? BrandingColors.containerBorderColor
+                              : Colors.red.shade800,
+                        ),
+                      ),
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.add,
+                              color: Colors.black,
+                              weight: 10,
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              "Upload File",
+                              style: Theme.of(context).textTheme.bodyLarge,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Visibility(
+                  visible: !canUpload,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: BrandingColors.containerBorderColor,
+                      ),
+                    ),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(5),
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Wrap(
+                                      alignment: WrapAlignment.center,
+                                      crossAxisAlignment:
+                                          WrapCrossAlignment.center,
+                                      spacing: 3.0,
+                                      runSpacing: 3.0,
+                                      children: [
+                                        for (var i = 0;
+                                            i < selectedFilePaths.length;
+                                            i++) ...[
+                                          imageCard(i),
+                                          if (selectedFilePaths.length < 2)
+                                            Center(
+                                              child: IconButton.outlined(
+                                                icon: const Icon(
+                                                  Icons.add,
+                                                ),
+                                                onPressed: () {
+                                                  showUploadFile(context);
+                                                },
+                                              ),
+                                            )
+                                        ]
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                ConstantWidgets.gapSizedBox(context),
+              ],
+
+              // upload bil
               const RequiredInputLabel(
-                label: "Upload Reference Document",
+                label: "Upload Bill",
                 isRequired: true,
               ),
               ConstantWidgets.labelSizedBox(context),
@@ -304,91 +447,53 @@ class _CreateBillPageState extends State<CreateBillPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        if (allowedExtension.contains(fileExtension)) ...[
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Stack(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(5),
-                                      child: Image.file(
-                                        File(selectedFilePaths.first),
-                                        height: context.deviceHeight * 0.25,
-                                        fit: BoxFit.contain,
-                                      ),
-                                    ),
-                                    Positioned(
-                                      right: 0 - 2,
-                                      top: 0,
-                                      child: InkWell(
-                                        onTap: () {
-                                          setState(() {
-                                            selectedFilePaths.clear();
-                                            canUpload = true;
-                                            fileExtension = null;
-                                          });
-                                        },
-                                        child: const Icon(
-                                          Icons.cancel,
-                                          color: BrandingColors.danger,
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                ConstantWidgets.labelSizedBox(context),
-                                Text(getFileName(selectedFilePaths.first))
-                              ],
-                            ),
-                          ),
-                        ] else ...[
-                          Stack(
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Column(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(10),
-                                    child: SvgPicture.asset(
-                                      AssetsPath.pdfSVGIcon,
-                                      height: context.deviceHeight * 0.18,
-                                      width: context.deviceHeight * 0.2,
-                                    ),
-                                  ),
-                                  ConstantWidgets.labelSizedBox(context),
-                                  if (selectedFilePaths.isNotEmpty)
-                                    Text(getFileName(selectedFilePaths.first)),
-                                ],
-                              ),
-                              Positioned(
-                                top: context.deviceHeight * 0.01,
-                                right: context.deviceWidth * 0.05,
-                                child: InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      selectedFilePaths.clear();
-                                      canUpload = true;
-                                      fileExtension = null;
-                                    });
-                                  },
-                                  child: const Icon(
-                                    Icons.cancel,
-                                    color: BrandingColors.danger,
+                              Padding(
+                                padding: const EdgeInsets.all(5),
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Wrap(
+                                    alignment: WrapAlignment.center,
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    spacing: 3.0,
+                                    runSpacing: 3.0,
+                                    children: [
+                                      for (var i = 0;
+                                          i < selectedFilePaths.length;
+                                          i++) ...[
+                                        imageCard(i),
+                                        if (selectedFilePaths.length < 2)
+                                          Center(
+                                            child: IconButton.outlined(
+                                              icon: const Icon(
+                                                Icons.add,
+                                              ),
+                                              onPressed: () {
+                                                showUploadFile(context);
+                                              },
+                                            ),
+                                          )
+                                      ]
+                                    ],
                                   ),
                                 ),
                               ),
                             ],
-                          )
-                        ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ),
               ),
               ConstantWidgets.gapSizedBox(context),
+
               BlocListener<ApplicationBloc, ApplicationState>(
                 bloc: _bloc,
                 listener: (context, state) {
@@ -418,20 +523,21 @@ class _CreateBillPageState extends State<CreateBillPage> {
                 child: CustomTextButton(
                   text: "DONE",
                   onPressed: () {
-                    if (_formKey.currentState!.validate()) {
+                    if (_formKey.currentState!.validate() &&
+                        selectedFilePaths.isNotEmpty) {
                       Map<String, dynamic> requestData = {
                         "month": month.text.toLowerCase(),
                         "bill_type": widget.billType,
                         "bill_number": billNumber.text,
                         "units": units.text,
                         "property": selectedProperty!.id,
-                        "room": selectedRoom!.id,
+                        // "room": selectedRoom!.id,
                         "remarks": remarks.text,
                       };
                       _bloc!.add(
                         CreateBillEvent(
                           requestData: requestData,
-                          imagePath: selectedFilePaths.first,
+                          imagePath: selectedFilePaths,
                         ),
                       );
                     } else {
@@ -446,6 +552,53 @@ class _CreateBillPageState extends State<CreateBillPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget imageCard(index) {
+    return Stack(
+      children: [
+        SizedBox(
+          width: context.deviceWidth * 0.25,
+          height: context.deviceHeight * 0.25,
+          child: (getFileName(selectedFilePaths.elementAt(index)) != "pdf")
+              ? Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: isImageFile(selectedFilePaths.elementAt(index))
+                      ? Image.network(
+                          selectedFilePaths.elementAt(index),
+                          fit: BoxFit.contain,
+                        )
+                      : Image.file(
+                          File(selectedFilePaths.elementAt(index)),
+                          fit: BoxFit.contain,
+                        ),
+                )
+              : SvgPicture.asset(
+                  AssetsPath.pdfSVGIcon,
+                  height: context.deviceHeight * 0.18,
+                  width: context.deviceHeight * 0.2,
+                ),
+        ),
+        Positioned(
+          right: 0,
+          top: 0 - 2,
+          child: InkWell(
+            onTap: () {
+              setState(() {
+                selectedFilePaths.removeAt(index);
+                if (selectedFilePaths.isEmpty) {
+                  canUpload = true;
+                }
+              });
+            },
+            child: const Icon(
+              Icons.cancel,
+              color: Colors.red,
+            ),
+          ),
+        )
+      ],
     );
   }
 
@@ -495,22 +648,30 @@ class _CreateBillPageState extends State<CreateBillPage> {
                     if (status == PermissionStatus.granted) {
                       FilePickerResult? result =
                           await FilePicker.platform.pickFiles(
-                        type: FileType.custom,
-                        allowedExtensions: ['pdf', 'png', 'jpg', "jpeg"],
+                        allowMultiple: true,
+                        type: FileType.image,
                       );
                       if (result != null) {
-                        List<String> paths =
-                            result.paths.map((path) => path!).toList();
-                        String filePath = paths.first;
-                        String extension =
-                            filePath.split('.').last.toLowerCase();
-                        setState(() {
-                          selectedFilePaths.addAll(paths);
-                          canUpload = false;
-                          fileExtension = extension;
-                          notUploaded = false;
-                        });
-                        Navigator.pop(context);
+                        int allowedCount = 2 - selectedFilePaths.length;
+                        if (result.count <= allowedCount) {
+                          List<String> paths =
+                              result.paths.map((path) => path!).toList();
+                          String filePath = paths.first;
+                          String extension =
+                              filePath.split('.').last.toLowerCase();
+                          setState(() {
+                            selectedFilePaths.addAll(paths);
+                            canUpload = false;
+                            fileExtension = extension;
+                            notUploaded = false;
+                          });
+                          Navigator.pop(context);
+                        } else {
+                          ConstantWidgets.errorShowToaster(
+                            context,
+                            "Max allowed files is $allowedCount",
+                          );
+                        }
                       }
                     } else {
                       ConstantWidgets.errorShowToaster(
