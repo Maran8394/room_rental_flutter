@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:room_rental/models/response_models/create_bill_response_data.dart';
+import 'package:room_rental/models/response_models/dashboard_chart_data.dart';
 import 'package:room_rental/models/response_models/payment_page_model.dart';
 import 'package:room_rental/models/response_models/service_request_list.dart';
 import 'package:room_rental/models/response_models/tenant_rental_record_model.dart';
@@ -37,12 +37,11 @@ class ApplicationBloc extends Bloc<ApplicationEvent, ApplicationState> {
     });
 
     on<GetPaymentPageBillsEvent>((event, emit) async {
-      emit(GetBillsDonetInit());
+      emit(GetBillsInit());
       try {
         UserRepo repo = UserRepo();
-        PaymentPageModel? responseData = await repo.getBills(
-          month: event.month,
-        );
+        PaymentPageModel? responseData =
+            await repo.getBills(month: event.month);
         emit(GetBillsDone(responseData: responseData!));
       } catch (e) {
         emit(GetBillsFailed(errorMessage: e.toString().substring(11)));
@@ -53,11 +52,11 @@ class ApplicationBloc extends Bloc<ApplicationEvent, ApplicationState> {
       emit(CreateBillInitState());
       try {
         UserRepo repo = UserRepo();
-        CreateBillResponseData? responseData = await repo.createBill(
+        await repo.createBill(
           imageFiles: event.imagePath,
           requestBody: event.requestData,
         );
-        emit(CreateBillSuccessState(responseData: responseData));
+        emit(CreateBillSuccessState());
       } catch (e) {
         emit(CreateBillFiledState(errorMessage: e.toString()));
       }
@@ -140,6 +139,32 @@ class ApplicationBloc extends Bloc<ApplicationEvent, ApplicationState> {
         }
       } catch (e) {
         emit(ChangePasswordFailed(errorMessage: e.toString()));
+      }
+    });
+
+    on<UpdateBillEvent>((event, emit) async {
+      emit(UpdateBillInitState());
+      try {
+        UserRepo repo = UserRepo();
+        await repo.updateBill(
+          requestBody: event.requestData,
+          objectId: event.objectId,
+          imageFiles: event.images!,
+        );
+        emit(UpdateBillDoneState());
+      } catch (e) {
+        emit(UpdateBillFailedState(errorMessage: e.toString()));
+      }
+    });
+
+    on<GetChartDataEvent>((event, emit) async {
+      emit(GetChartDataInitState());
+      try {
+        UserRepo repo = UserRepo();
+        DashboardChartData? data = await repo.getChartData(month: event.month);
+        emit(GetChartDataDoneState(responseData: data!));
+      } catch (e) {
+        emit(GetChartDataFailedState(errorMessage: e.toString()));
       }
     });
   }

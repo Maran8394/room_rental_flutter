@@ -66,7 +66,7 @@ class MyApp extends StatelessWidget {
       ],
       child: BlocBuilder<ChangeLocaleCubit, Locale>(
         builder: (context, locale) {
-          context.read<ApplicationBloc>().add(GetPropertiesEvent());
+          // context.read<ApplicationBloc>().add(GetPropertiesEvent());
 
           return MaterialApp(
             debugShowCheckedModeBanner: false,

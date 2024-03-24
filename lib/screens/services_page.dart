@@ -88,14 +88,14 @@ class _ServicesPageState extends State<ServicesPage> {
           bloc: _bloc,
           listener: (context, state) {
             if (state is ChangeServiceRequestStatusInit) {
-              _dialog!.showAlertDialog(BrandingColors.backgroundColor);
+              _dialog!.showAlertDialog(BrandingColors.primaryColor);
             }
             if (state is ChangeServiceRequestStatusDone) {
               _dialog!.dimissDialog();
               _bloc!.add(GetServiceRequests());
             }
             if (state is GetServiceRequestInit) {
-              _dialog!.showAlertDialog(BrandingColors.backgroundColor);
+              _dialog!.showAlertDialog(BrandingColors.primaryColor);
             }
             if (state is GetServiceRequestFailed) {
               _dialog!.dimissDialog();

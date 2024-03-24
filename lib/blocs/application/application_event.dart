@@ -89,3 +89,21 @@ class GetPaymentPageBillsEvent extends ApplicationEvent {
     this.month,
   });
 }
+
+class UpdateBillEvent extends ApplicationEvent {
+  final String objectId;
+  List<String>? images;
+  final Map<String, dynamic> requestData;
+  UpdateBillEvent({
+    required this.objectId,
+    this.images,
+    required this.requestData,
+  });
+}
+
+class GetChartDataEvent extends ApplicationEvent {
+   final String? month;
+   GetChartDataEvent({
+    this.month,
+  });
+}

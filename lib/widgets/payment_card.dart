@@ -1,6 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
-import 'package:room_rental/extensions/media_query_extensions.dart';
 
 import 'package:room_rental/widgets/constant_widgets.dart';
 import 'package:room_rental/widgets/custom_text_button.dart';
@@ -9,18 +8,24 @@ class PaymentCard extends StatelessWidget {
   final Function()? onTap;
   final Function()? onBtnTap;
   final bool isActive;
+  final bool? isDisabled;
+  final bool? isAdminVerified;
   final String title;
-  final String amount;
-  final String taxAmount;
+  final double? amount;
+  final double? taxAmount;
+  final String? leftPropertiesCount;
 
   const PaymentCard({
     Key? key,
     this.onTap,
     this.onBtnTap,
     required this.isActive,
+    this.isDisabled,
+    this.isAdminVerified,
     required this.title,
     required this.amount,
     required this.taxAmount,
+    this.leftPropertiesCount,
   }) : super(key: key);
 
   @override
@@ -33,7 +38,7 @@ class PaymentCard extends StatelessWidget {
         ),
         curve: Curves.easeInOut,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: (isDisabled == true) ? Colors.grey.shade100 : Colors.white,
           borderRadius: const BorderRadius.all(
             Radius.circular(10),
           ),
@@ -53,15 +58,36 @@ class PaymentCard extends StatelessWidget {
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     const Spacer(),
-                    Text(
-                      "HK\$ $amount",
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    SizedBox(width: MediaQuery.of(context).size.width * 0.02),
-                    Icon(
-                      (isActive) ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-                      color: Colors.black,
-                    ),
+                    if (isAdminVerified == true) ...[
+                      Text(
+                        "HK\$ $amount",
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      SizedBox(width: MediaQuery.of(context).size.width * 0.02),
+                      Icon(
+                        (isActive)
+                            ? Icons.arrow_drop_up
+                            : Icons.arrow_drop_down,
+                        color: Colors.black,
+                      ),
+                    ] else ...[
+                      if (leftPropertiesCount != "0" &&
+                          leftPropertiesCount != null) ...[
+                        CircleAvatar(
+                          radius: 13,
+                          child: Text(
+                            leftPropertiesCount.toString(),
+                          ),
+                        )
+                      ] else if (leftPropertiesCount == null)
+                        ...[]
+                      else ...[
+                        Icon(
+                          Icons.hourglass_bottom_rounded,
+                          color: Colors.amberAccent.shade700,
+                        )
+                      ],
+                    ],
                   ],
                 ),
               ),

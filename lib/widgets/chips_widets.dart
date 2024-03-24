@@ -24,8 +24,12 @@ class StatusChip extends StatelessWidget {
         return Colors.orange;
       case "completed":
         return Colors.green;
+      case "waiting_for_approval":
+        return Colors.orange;
+      case "approved":
+        return Colors.green;
       default:
-        return Colors.transparent;
+        return Colors.black;
     }
   }
 

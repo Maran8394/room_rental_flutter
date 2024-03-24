@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:room_rental/screens/bill_detail_page.dart';
 import 'package:room_rental/screens/camera_page.dart';
 import 'package:room_rental/screens/change_password.dart';
 import 'package:room_rental/screens/contract_details.dart';
@@ -82,7 +83,20 @@ class RouteGenerator {
       case Routes.createBill:
         final args = settings.arguments as CreateBillPage;
         return MaterialPageRoute(
-          builder: (_) => CreateBillPage(billType: args.billType),
+          builder: (_) => CreateBillPage(
+            billType: args.billType,
+            month: args.month,
+            notGenProperties: args.notGenProperties,
+          ),
+        );
+
+      case Routes.billDetailPage:
+        final args = settings.arguments as BillDetailPage;
+        return MaterialPageRoute(
+          builder: (_) => BillDetailPage(
+            billType: args.billType,
+            bills: args.bills,
+          ),
         );
       case Routes.editServiceRequest:
         final args = settings.arguments as EditServiceRequest;

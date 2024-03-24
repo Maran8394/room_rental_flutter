@@ -38,8 +38,9 @@ class ConstantValues {
   ];
 
   static const List<String> billTypes = [
-    "Electricity",
     "Rent",
+    "Electricity",
+    "Service",
     "Water",
   ];
 }

@@ -1,23 +1,26 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+
 import 'package:room_rental/blocs/application/application_bloc.dart';
 import 'package:room_rental/extensions/media_query_extensions.dart';
+import 'package:room_rental/models/response_models/dashboard_chart_data.dart';
+import 'package:room_rental/models/response_models/payment_page_model.dart';
 import 'package:room_rental/models/response_models/property_model.dart';
 import 'package:room_rental/models/response_models/rooms_data_model.dart';
 import 'package:room_rental/models/response_models/tenant_rental_record_model.dart';
 import 'package:room_rental/screens/index_page.dart';
 import 'package:room_rental/service/api_service/api_urls.dart';
-import 'package:room_rental/utils/constants/constant_values.dart';
+import 'package:room_rental/utils/constants/branding_colors.dart';
+import 'package:room_rental/utils/constants/methods.dart';
 import 'package:room_rental/utils/constants/routes.dart';
+import 'package:room_rental/utils/constants/styles.dart';
 import 'package:room_rental/widgets/constant_widgets.dart';
 import 'package:room_rental/widgets/month_dropdown.dart';
 import 'package:room_rental/widgets/property_card.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-
-import 'package:room_rental/utils/constants/branding_colors.dart';
-import 'package:room_rental/utils/constants/styles.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -27,6 +30,9 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  ApplicationBloc? _bloc1;
+  ApplicationBloc? _bloc2;
+  ApplicationBloc? _bloc3;
   List<_ChartData>? data;
   final PageController _propertyPageController = PageController();
   String? checkedLabel;
@@ -37,29 +43,20 @@ class _DashboardState extends State<Dashboard> {
   bool isZoomed = false;
   int currentPropertyIndex = 0;
   int propertysCount = 2;
+  List<_ChartData>? chartData;
   @override
   void initState() {
     super.initState();
     setState(() {
-      selectedMonth = "Feb";
+      selectedMonth = getCurrentMonth();
       selectedLabel = "OverAll";
-      selectedLabelPrice = "40";
     });
-
-  }
-
-  List<_ChartData> _getData() {
-    return <_ChartData>[
-      _ChartData('Electricity', 20, Colors.green),
-      _ChartData('Service', 30, Colors.red),
-      _ChartData('Water', 25, Colors.blue),
-      _ChartData('Rent', 15, Colors.yellow),
-    ];
-  }
-
-  _ChartData _getChartData(int index) {
-    List<_ChartData> chartData = _getData();
-    return chartData.elementAt(index);
+    _bloc1 = ApplicationBloc();
+    _bloc2 = ApplicationBloc();
+    _bloc3 = ApplicationBloc();
+    _bloc1!.add(GetPaymentPageBillsEvent(month: selectedMonth));
+    _bloc2!.add(GetChartDataEvent(month: selectedMonth!));
+    _bloc3!.add(GetPropertiesEvent());
   }
 
   @override
@@ -116,6 +113,7 @@ class _DashboardState extends State<Dashboard> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 15),
         children: [
+          // Payment indication
           ConstantWidgets.gapSizedBox(context),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -143,8 +141,25 @@ class _DashboardState extends State<Dashboard> {
               ),
             ],
           ),
-          const HorizontalCardListView(),
+          BlocBuilder<ApplicationBloc, ApplicationState>(
+            bloc: _bloc1,
+            builder: (context, state) {
+              if (state is GetBillsInit) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (state is GetBillsDone) {
+                return HorizontalCardListView(
+                  month: selectedMonth!,
+                  responseData: state.responseData,
+                );
+              } else {
+                return const Center(child: Text("Something is wrong!"));
+              }
+            },
+          ),
           ConstantWidgets.gapSizedBox(context),
+
+          // Dashboard Chart
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -158,80 +173,118 @@ class _DashboardState extends State<Dashboard> {
                 selectedMonth: selectedMonth,
                 height: size.height / 20,
                 width: size.width / 4,
+                onChanged: (val) {
+                  setState(() {
+                    selectedMonth = val;
+                  });
+                  _bloc2!.add(GetChartDataEvent(month: selectedMonth!));
+                  _bloc1!.add(GetPaymentPageBillsEvent(month: selectedMonth));
+                },
               ),
             ],
           ),
-          SfCircularChart(
-            enableMultiSelection: false,
-            legend: const Legend(
-              isVisible: true,
-              position: LegendPosition.bottom,
-            ),
-            margin: const EdgeInsets.all(0),
-            palette: const [
-              BrandingColors.donutChartPink,
-              BrandingColors.donutChartYellow,
-              BrandingColors.donutChartBlue,
-              BrandingColors.donutChartGreen,
-            ],
-            series: <CircularSeries<_ChartData, String>>[
-              DoughnutSeries<_ChartData, String>(
-                innerRadius: "60%",
-                dataSource: _getData(),
-                xValueMapper: (_ChartData data, _) => data.x,
-                yValueMapper: (_ChartData data, _) => data.y,
-                dataLabelMapper: (_ChartData data, _) => data.x,
-                dataLabelSettings: const DataLabelSettings(
-                  isVisible: false,
-                ),
-                legendIconType: LegendIconType.circle,
-                enableTooltip: false,
-                onPointTap: (pointInteractionDetails) {
-                  _ChartData chartData =
-                      _getChartData(pointInteractionDetails.pointIndex!);
-                  setState(() {
-                    selectedIndex = pointInteractionDetails.pointIndex!;
-                    selectedLabel = chartData.x;
-                    selectedLabelPrice = chartData.y.toString();
-                  });
-                },
-              )
-            ],
-            annotations: <CircularChartAnnotation>[
-              CircularChartAnnotation(
-                angle: 20,
-                radius: "1%",
-                widget: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      "HK\$ $selectedLabelPrice",
-                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                            fontWeight: FontWeight.bold,
+          BlocBuilder<ApplicationBloc, ApplicationState>(
+            bloc: _bloc2,
+            builder: (context, state) {
+              if (state is GetChartDataFailedState) {
+                return Center(
+                  child: Text(state.errorMessage),
+                );
+              }
+              if (state is GetChartDataDoneState) {
+                DashboardChartData data = state.responseData;
+                List<_ChartData> source = [
+                  _ChartData('Electricity', data.electricity, Colors.green),
+                  _ChartData('Service', data.service, Colors.red),
+                  _ChartData('Water', data.water, Colors.blue),
+                  _ChartData('Rent', data.rent, Colors.yellow),
+                ];
+                double total =
+                    data.electricity + data.service + data.water + data.rent;
+                selectedLabelPrice = total.toString();
+                return SfCircularChart(
+                  enableMultiSelection: false,
+                  legend: const Legend(
+                    isVisible: true,
+                    position: LegendPosition.bottom,
+                  ),
+                  margin: const EdgeInsets.all(0),
+                  palette: const [
+                    BrandingColors.donutChartPink,
+                    BrandingColors.donutChartYellow,
+                    BrandingColors.donutChartBlue,
+                    BrandingColors.donutChartGreen,
+                  ],
+                  series: <CircularSeries<_ChartData, String>>[
+                    DoughnutSeries<_ChartData, String>(
+                      innerRadius: "60%",
+                      dataSource: source,
+                      xValueMapper: (_ChartData data, _) => data.x,
+                      yValueMapper: (_ChartData data, _) => data.y,
+                      dataLabelMapper: (_ChartData data, _) => data.x,
+                      dataLabelSettings: const DataLabelSettings(
+                        isVisible: false,
+                      ),
+                      legendIconType: LegendIconType.circle,
+                      enableTooltip: false,
+                      onPointTap: (pointInteractionDetails) {
+                        _ChartData chartData = source
+                            .elementAt(pointInteractionDetails.pointIndex!);
+                        setState(() {
+                          selectedIndex = pointInteractionDetails.pointIndex!;
+                          selectedLabel = chartData.x;
+                          selectedLabelPrice = chartData.y.toString();
+                        });
+                      },
+                    )
+                  ],
+                  annotations: <CircularChartAnnotation>[
+                    CircularChartAnnotation(
+                      angle: 20,
+                      radius: "1%",
+                      widget: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            "HK\$ $selectedLabelPrice",
+                            style:
+                                Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                           ),
-                    ),
-                    Text(
-                      selectedLabel!,
-                      style: Theme.of(context).textTheme.bodyLarge,
+                          Text(
+                            selectedLabel!,
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
-                ),
-              ),
-            ],
+                );
+              } else {
+                return const Center(child: CircularProgressIndicator());
+              }
+            },
           ),
           ConstantWidgets.gapSizedBox(context),
+
+          // My Stay
           Text(
             "My Stay",
             style: ConstantStyles.bodyTitleStyle(context),
           ),
           ConstantWidgets.labelSizedBox(context),
           BlocBuilder<ApplicationBloc, ApplicationState>(
+            bloc: _bloc3,
             builder: (context, state) {
+              if (state is GetPropertiesFailed) {
+                return const Center(child: Text("Something is wrong!"));
+              }
               if (state is GetPropertiesSuccess) {
                 return propertiesList(state.response..response_data);
               } else {
-                return const Center(child: Text("Something is wrong!"));
+                return const Center(child: CircularProgressIndicator());
               }
             },
           ),
@@ -347,62 +400,112 @@ class _ChartData {
 }
 
 class HorizontalCardListView extends StatelessWidget {
-  const HorizontalCardListView({super.key});
+  final String month;
+  final PaymentPageModel responseData;
+  const HorizontalCardListView({
+    Key? key,
+    required this.month,
+    required this.responseData,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: context.deviceHeight * 0.12,
-      child: ListView.builder(
+      child: ListView(
         scrollDirection: Axis.horizontal,
-        itemCount: ConstantValues.billTypes.length,
-        itemBuilder: (BuildContext context, int index) {
-          return Card(
-            elevation: 0,
-            color: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-              side:
-                  const BorderSide(color: BrandingColors.containerBorderColor),
+        children: [
+          if (responseData.rent!.paid_status != true)
+            DashboardPaymentCard(
+              month: month,
+              text: "Rent",
             ),
-            child: SizedBox(
-              width: context.deviceWidth / 3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Container(
-                    height: context.deviceHeight * 0.06,
-                    color: Colors.white,
-                    child: Center(
-                      child: Text(
-                        ConstantValues.billTypes.elementAt(index),
-                      ),
-                    ),
+          if (responseData.electricity!.paid_status != true)
+            DashboardPaymentCard(
+              month: month,
+              text: "Electricity",
+            ),
+          if (responseData.service!.paid_status != true)
+            DashboardPaymentCard(
+              month: month,
+              text: "Service",
+            ),
+          if (responseData.water!.paid_status != true)
+            DashboardPaymentCard(
+              month: month,
+              text: "Water",
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class DashboardPaymentCard extends StatelessWidget {
+  const DashboardPaymentCard({
+    Key? key,
+    required this.month,
+    required this.text,
+  }) : super(key: key);
+
+  final String month;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          Routes.indexPage,
+          arguments: const IndexingPage(
+            selectedIndex: 1,
+          ),
+        );
+      },
+      child: Card(
+        elevation: 0,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: const BorderSide(color: BrandingColors.containerBorderColor),
+        ),
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width / 3,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Container(
+                height: MediaQuery.of(context).size.height * 0.06,
+                color: Colors.white,
+                child: Center(
+                  child: Text(
+                    text,
                   ),
-                  Container(
-                    height: context.deviceHeight * 0.04,
-                    decoration: const BoxDecoration(
-                      color: BrandingColors.primaryColor,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(10),
-                        bottomRight: Radius.circular(10),
-                      ),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        "June",
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          );
-        },
+              Container(
+                height: MediaQuery.of(context).size.height * 0.04,
+                decoration: const BoxDecoration(
+                  color: BrandingColors.primaryColor,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(10),
+                    bottomRight: Radius.circular(10),
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    month,
+                    style: const TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

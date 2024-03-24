@@ -15,7 +15,7 @@ class DropDownWidget extends StatelessWidget {
   }) : super(key: key);
 
   final String selectedValue;
-  final List<String> dropDownItems;
+  final List<String>? dropDownItems;
   final Function(String?)? onChanged;
   final double? menuWidth;
 
@@ -40,7 +40,7 @@ class DropDownWidget extends StatelessWidget {
       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
             color: Colors.black,
           ),
-      items: dropDownItems
+      items: dropDownItems!
           .map(
             (item) => DropdownMenuItem<String>(
               value: item,

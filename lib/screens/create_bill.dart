@@ -8,7 +8,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'package:room_rental/blocs/application/application_bloc.dart';
@@ -26,18 +25,21 @@ import 'package:room_rental/widgets/constant_widgets.dart';
 import 'package:room_rental/widgets/custom_text_button.dart';
 import 'package:room_rental/widgets/dropdown_widget.dart';
 import 'package:room_rental/widgets/input_widget.dart';
-import 'package:room_rental/widgets/month_dropdown.dart';
 import 'package:room_rental/widgets/progress_indicator.dart';
 import 'package:room_rental/widgets/required_input_label.dart';
 
 class CreateBillPage extends StatefulWidget {
   final String billType;
   final String? capturedCameraImage;
+  final String? month;
+  final List<int?>? notGenProperties;
 
   const CreateBillPage({
     Key? key,
     required this.billType,
     this.capturedCameraImage,
+    this.month,
+    this.notGenProperties,
   }) : super(key: key);
 
   @override
@@ -54,7 +56,7 @@ class _CreateBillPageState extends State<CreateBillPage> {
   final Map<int, TenantRentalRecord> propertiesData = {};
   final Map<int, String> roomsList = {};
   ProgressDialog? dialog;
-  List<String> notApplicableForRent = ["house_rent", "service"];
+  List<String> notApplicableForRent = ["house_rent"];
   TenantRentalRecord? selectedProperty;
   TenantRoomDataModel? selectedRoom;
 
@@ -68,10 +70,7 @@ class _CreateBillPageState extends State<CreateBillPage> {
   void initState() {
     super.initState();
 
-    String currentMonthAbbreviation = DateFormat.MMM().format(DateTime.now());
-    setState(() {
-      month.text = currentMonthAbbreviation;
-    });
+    setState(() => month.text = widget.month!);
     _bloc = ApplicationBloc();
     _bloc!.add(GetPropertiesEvent());
     dialog = ProgressDialog(context);
@@ -100,22 +99,6 @@ class _CreateBillPageState extends State<CreateBillPage> {
                 fontWeight: FontWeight.bold,
               ),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: MonthDropdown(
-              height: size.height / 20,
-              width: size.width / 4,
-              size: size,
-              selectedMonth: month.text,
-              onChanged: (val) {
-                setState(() {
-                  month.text = val!;
-                });
-              },
-            ),
-          )
-        ],
       ),
       body: BlocProvider(
         create: (context) => SelectRoomCubit(),
@@ -134,16 +117,26 @@ class _CreateBillPageState extends State<CreateBillPage> {
                 bloc: _bloc,
                 builder: (context, state) {
                   if (state is GetPropertiesSuccess) {
-                    TenantRentalRecordList propertyModel = state.response;
-                    List<String> propertiesNameList = propertyModel
-                        .response_data!
-                        .map((value) => value.property!.property_name!)
-                        .toList();
-                    for (var i = 0; i < propertiesNameList.length; i++) {
-                      propertiesData[i] =
-                          propertyModel.response_data!.elementAt(i);
+                    List<TenantRentalRecord>? propertyModel =
+                        state.response.response_data;
+                    List<int> propertiesId =
+                        propertyModel!.map((e) => e.id!).toList();
+                    List<int?>? notGenList = widget.notGenProperties;
+
+                    Set<int> set1 = Set.from(propertiesId);
+                    Set<int> set2 = Set.from(notGenList!);
+                    Set<int> difference = set1.difference(set2);
+                    List<int> resultList = difference.toList();
+                    List<String> propertiesNameList = [];
+                    for (var p = 0; p < propertyModel.length; p++) {
+                      TenantRentalRecord record = propertyModel.elementAt(p);
+                      if (!resultList.contains(record.id)) {
+                        propertiesNameList.add(record.property!.property_name!);
+                        propertiesData[p] = propertyModel.elementAt(p);
+                      }
                     }
-                    selectedProperty = propertyModel.response_data!.first;
+
+                    selectedProperty = propertiesData.values.first;
 
                     return DropDownWidget(
                       menuWidth: context.deviceWidth * 0.94,
@@ -152,8 +145,8 @@ class _CreateBillPageState extends State<CreateBillPage> {
                       onChanged: (value) {
                         int? selectedPropertyIndex =
                             propertiesNameList.indexOf(value!);
-                        selectedProperty =
-                            propertiesData[selectedPropertyIndex];
+                        selectedProperty = propertiesData.values
+                            .elementAt(selectedPropertyIndex);
                       },
                     );
                   } else if (state is GetPropertiesFailed) {
@@ -243,32 +236,38 @@ class _CreateBillPageState extends State<CreateBillPage> {
                 ConstantWidgets.labelSizedBox(context),
                 InputWidget(
                   controller: billNumber,
-                  validator: (dynamic value) {
-                    if (value == null || value.isEmpty) {
-                      return "";
-                    }
-                    return null;
-                  },
+                  validator: (!notApplicableForRent.contains(widget.billType))
+                      ? (dynamic value) {
+                          if (value == null || value.isEmpty) {
+                            return "";
+                          }
+                          return null;
+                        }
+                      : null,
                 ),
                 ConstantWidgets.gapSizedBox(context),
 
                 // Units
-                const RequiredInputLabel(
-                  label: "Units",
-                  isRequired: true,
-                ),
-                ConstantWidgets.labelSizedBox(context),
-                InputWidget(
-                  controller: units,
-                  keyboardType: TextInputType.number,
-                  validator: (dynamic value) {
-                    if (value == null || value.isEmpty) {
-                      return "";
-                    }
-                    return null;
-                  },
-                ),
-                ConstantWidgets.gapSizedBox(context),
+                if (widget.billType != "service") ...[
+                  const RequiredInputLabel(
+                    label: "Units",
+                    isRequired: true,
+                  ),
+                  ConstantWidgets.labelSizedBox(context),
+                  InputWidget(
+                    controller: units,
+                    keyboardType: TextInputType.number,
+                    validator: (widget.billType != "service")
+                        ? (dynamic value) {
+                            if (value == null || value.isEmpty) {
+                              return "";
+                            }
+                            return null;
+                          }
+                        : null,
+                  ),
+                  ConstantWidgets.gapSizedBox(context),
+                ],
               ],
 
               //Remarks
@@ -293,7 +292,7 @@ class _CreateBillPageState extends State<CreateBillPage> {
                   visible: canUpload,
                   child: GestureDetector(
                     onTap: () {
-                      showUploadFile(context);
+                      showUploadFile(context, "refDoc");
                     },
                     child: Container(
                       height: size.height * 0.06,
@@ -369,7 +368,8 @@ class _CreateBillPageState extends State<CreateBillPage> {
                                                   Icons.add,
                                                 ),
                                                 onPressed: () {
-                                                  showUploadFile(context);
+                                                  showUploadFile(
+                                                      context, "refDoc");
                                                 },
                                               ),
                                             )
@@ -388,111 +388,6 @@ class _CreateBillPageState extends State<CreateBillPage> {
                 ),
                 ConstantWidgets.gapSizedBox(context),
               ],
-
-              // upload bil
-              const RequiredInputLabel(
-                label: "Upload Bill",
-                isRequired: true,
-              ),
-              ConstantWidgets.labelSizedBox(context),
-              Visibility(
-                visible: canUpload,
-                child: GestureDetector(
-                  onTap: () {
-                    showUploadFile(context);
-                  },
-                  child: Container(
-                    height: size.height * 0.06,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: (!notUploaded)
-                            ? BrandingColors.containerBorderColor
-                            : Colors.red.shade800,
-                      ),
-                    ),
-                    child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.add,
-                            color: Colors.black,
-                            weight: 10,
-                          ),
-                          const SizedBox(width: 5),
-                          Text(
-                            "Upload File",
-                            style: Theme.of(context).textTheme.bodyLarge,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Visibility(
-                visible: !canUpload,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: BrandingColors.containerBorderColor,
-                    ),
-                  ),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(5),
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Wrap(
-                                    alignment: WrapAlignment.center,
-                                    crossAxisAlignment:
-                                        WrapCrossAlignment.center,
-                                    spacing: 3.0,
-                                    runSpacing: 3.0,
-                                    children: [
-                                      for (var i = 0;
-                                          i < selectedFilePaths.length;
-                                          i++) ...[
-                                        imageCard(i),
-                                        if (selectedFilePaths.length < 2)
-                                          Center(
-                                            child: IconButton.outlined(
-                                              icon: const Icon(
-                                                Icons.add,
-                                              ),
-                                              onPressed: () {
-                                                showUploadFile(context);
-                                              },
-                                            ),
-                                          )
-                                      ]
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              ConstantWidgets.gapSizedBox(context),
 
               BlocListener<ApplicationBloc, ApplicationState>(
                 bloc: _bloc,
@@ -523,28 +418,74 @@ class _CreateBillPageState extends State<CreateBillPage> {
                 child: CustomTextButton(
                   text: "DONE",
                   onPressed: () {
-                    if (_formKey.currentState!.validate() &&
-                        selectedFilePaths.isNotEmpty) {
-                      Map<String, dynamic> requestData = {
+                    Map<String, dynamic> requestData;
+                    if (notApplicableForRent.contains(widget.billType)) {
+                      requestData = {
                         "month": month.text.toLowerCase(),
                         "bill_type": widget.billType,
-                        "bill_number": billNumber.text,
-                        "units": units.text,
                         "property": selectedProperty!.id,
-                        // "room": selectedRoom!.id,
                         "remarks": remarks.text,
                       };
-                      _bloc!.add(
-                        CreateBillEvent(
-                          requestData: requestData,
-                          imagePath: selectedFilePaths,
-                        ),
-                      );
                     } else {
-                      setState(() {
-                        notUploaded = true;
-                      });
+                      if (_formKey.currentState!.validate() &&
+                          selectedFilePaths.isNotEmpty) {
+                        requestData = {
+                          "month": month.text.toLowerCase(),
+                          "bill_type": widget.billType,
+                          "bill_number": billNumber.text,
+                          "units": (units.text.trim().isNotEmpty)
+                              ? units.text.trim()
+                              : 0,
+                          "property": selectedProperty!.id,
+                          "remarks": remarks.text,
+                        };
+                      } else {
+                        requestData = {};
+                        setState(() {
+                          notUploaded = true;
+                        });
+                      }
                     }
+
+                    _bloc!.add(
+                      CreateBillEvent(
+                        requestData: requestData,
+                        imagePath: selectedFilePaths,
+                      ),
+                    );
+                    // if (_formKey.currentState!.validate() &&
+                    //     selectedFilePaths.isNotEmpty) {
+                    //   Map<String, dynamic> requestData;
+                    //   if (!notApplicableForRent.contains(widget.billType)) {
+                    //     requestData = {
+                    //       "month": month.text.toLowerCase(),
+                    //       "bill_type": widget.billType,
+                    //       "bill_number": billNumber.text,
+                    //       "units": units.text,
+                    //       "property": selectedProperty!.id,
+                    //       // "room": selectedRoom!.id,
+                    //       "remarks": remarks.text,
+                    //     };
+                    //   } else {
+                    //     requestData = {
+                    //       "month": month.text.toLowerCase(),
+                    //       "bill_type": widget.billType,
+                    //       "property": selectedProperty!.id,
+                    //       "remarks": remarks.text,
+                    //     };
+                    //   }
+
+                    //   _bloc!.add(
+                    //     CreateBillEvent(
+                    //       requestData: requestData,
+                    //       imagePath: selectedFilePaths,
+                    //     ),
+                    //   );
+                    // } else {
+                    //   setState(() {
+                    //     notUploaded = true;
+                    //   });
+                    // }
                   },
                 ),
               ),
@@ -602,7 +543,7 @@ class _CreateBillPageState extends State<CreateBillPage> {
     );
   }
 
-  Future<void> showUploadFile(BuildContext context) async {
+  Future<void> showUploadFile(BuildContext context, String fileType) async {
     return await showDialog(
       barrierDismissible: true,
       context: context,
@@ -649,10 +590,12 @@ class _CreateBillPageState extends State<CreateBillPage> {
                       FilePickerResult? result =
                           await FilePicker.platform.pickFiles(
                         allowMultiple: true,
-                        type: FileType.image,
+                        type: FileType.custom,
+                        allowedExtensions: allowedExtension,
                       );
                       if (result != null) {
                         int allowedCount = 2 - selectedFilePaths.length;
+
                         if (result.count <= allowedCount) {
                           List<String> paths =
                               result.paths.map((path) => path!).toList();

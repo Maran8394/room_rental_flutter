@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
-import 'package:room_rental/models/response_models/create_bill_response_data.dart';
+import 'package:room_rental/models/response_models/dashboard_chart_data.dart';
 import 'package:room_rental/models/response_models/payment_page_model.dart';
 import 'package:room_rental/models/response_models/service_request_list.dart';
 import 'package:room_rental/models/response_models/tenant_rental_record_model.dart';
@@ -111,7 +111,21 @@ class UserRepo {
     }
   }
 
-  Future<CreateBillResponseData> createBill(
+  Future<DashboardChartData>? getChartData({String? month}) async {
+    Uri requestUrl = Uri.parse("${ApiUrls.dashboardChart}?month=$month");
+    setAuthToken();
+    try {
+      var response = await _apiRequestService.getRequest<DashboardChartData>(
+        requestUrl,
+        (json) => DashboardChartData.fromMap(json),
+      );
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<bool> createBill(
       {required Map<String, dynamic> requestBody,
       required List<String> imageFiles}) async {
     Uri requestUrl = Uri.parse(ApiUrls.createBill);
@@ -119,14 +133,15 @@ class UserRepo {
 
     try {
       List<File> files = imageFiles.map((path) => File(path)).toList();
-      var response = await _apiRequestService.postRequest(
+      await _apiRequestService.postRequest(
         requestUrl,
         requestBody,
-        (json) => CreateBillResponseData.fromMap(json["response_data"]),
+        (json) => json["response_data"],
         files: files,
         fileName: "uploaded_image",
       );
-      return response;
+
+      return true;
     } catch (e) {
       rethrow;
     }
@@ -158,6 +173,31 @@ class UserRepo {
       required List<String>? imageFiles,
       required String objectId}) async {
     Uri requestUrl = Uri.parse(ApiUrls.updateServiceRequest + objectId);
+    setAuthToken();
+    List<File>? files = [];
+
+    try {
+      if (imageFiles != null) {
+        files = imageFiles.map((path) => File(path)).toList();
+      }
+
+      await _apiRequestService.putRequest(
+        requestUrl,
+        requestBody,
+        (json) => json,
+        files: files,
+        fileName: "uploaded_image",
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> updateBill(
+      {required Map<String, dynamic> requestBody,
+      required List<String>? imageFiles,
+      required String objectId}) async {
+    Uri requestUrl = Uri.parse(ApiUrls.updateBill + objectId);
     setAuthToken();
     List<File>? files = [];
 

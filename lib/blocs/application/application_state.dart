@@ -16,7 +16,7 @@ class GetServiceRequestDone extends ApplicationState {
   });
 }
 
-class GetBillsDonetInit extends ApplicationState {}
+class GetBillsInit extends ApplicationState {}
 
 class GetBillsDone extends ApplicationState {
   final PaymentPageModel responseData;
@@ -55,12 +55,7 @@ class GetPropertiesFailed extends ApplicationState {
 
 class CreateBillInitState extends ApplicationState {}
 
-class CreateBillSuccessState extends ApplicationState {
-  final CreateBillResponseData responseData;
-  CreateBillSuccessState({
-    required this.responseData,
-  });
-}
+class CreateBillSuccessState extends ApplicationState {}
 
 class CreateBillFiledState extends ApplicationState {
   final String errorMessage;
@@ -125,6 +120,33 @@ class ChangeServiceRequestStatusDone extends ApplicationState {}
 class ChangeServiceRequestStatusFailed extends ApplicationState {
   final String errorMessage;
   ChangeServiceRequestStatusFailed({
+    required this.errorMessage,
+  });
+}
+
+class UpdateBillInitState extends ApplicationState {}
+
+class UpdateBillDoneState extends ApplicationState {}
+
+class UpdateBillFailedState extends ApplicationState {
+  final String errorMessage;
+  UpdateBillFailedState({
+    required this.errorMessage,
+  });
+}
+
+class GetChartDataInitState extends ApplicationState {}
+
+class GetChartDataDoneState extends ApplicationState {
+  DashboardChartData responseData;
+  GetChartDataDoneState({
+    required this.responseData,
+  });
+}
+
+class GetChartDataFailedState extends ApplicationState {
+  final String errorMessage;
+  GetChartDataFailedState({
     required this.errorMessage,
   });
 }

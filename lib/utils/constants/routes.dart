@@ -14,6 +14,7 @@ class Routes {
   static const String editServiceRequest = "editServiceRequest";
   static const String settingsPage = "settingsPage";
   static const String createBill = "createBill";
+  static const String billDetailPage = "billDetailPage";
   static const String createNewRequestPage = "createNewRequestPage";
   static const String personalDetailsPage = "personalDetailsPage";
   static const String editPersonalDetailsPage = "editPersonalDetailsPage";
