@@ -1,41 +1,58 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:room_rental/firebase_options.dart';
 
-// ignore: slash_for_doc_comments
-/**
- 
- * There are 3 major things to consider when dealing with push notification :
- * - Creating the notification
- * - Hanldle notification click
- * - App status (foreground/background and killed(Terminated))
- * 
- * Creating the notification:
- * 
- * - When the app is killed or in background state, creating the notification is handled through the back-end services.
- *   When the app is in the foreground, we have full control of the notification. so in this case we build the notification from scratch.
- * 
- * Handle notification click:
- * 
- * - When the app is killed, there is a function called getInitialMessage which
- *   returns the remoteMessage in case we receive a notification otherwise returns null.
- *   It can be called at any point of the application (Preferred to be after defining GetMaterialApp so that we can go to any screen without getting any errors) 
- * - When the app is in the background, there is a function called onMessageOpenedApp which is called when user clicks on the notification.
- *   It returns the remoteMessage.
- * - When the app is in the foreground, there is a function flutterLocalNotificationsPlugin, is passes a future function called onSelectNotification which 
- *   is called when user clicks on the notification.
- *  
- * */
 
-// Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-//   await Firebase.initializeApp();
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  if (Platform.isAndroid) {
+    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+        FlutterLocalNotificationsPlugin();
 
-// }
+    final title = message.notification?.title ?? 'Notification Title';
+    final body = message.notification?.body ?? 'Notification Body';
+
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'high_importance_channel',
+      'High Importance Notifications',
+      playSound: true,
+      enableVibration: true,
+      importance: Importance.high,
+    );
+
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+
+    final notificationDetails = NotificationDetails(
+      android: AndroidNotificationDetails(
+        channel.id,
+        channel.name,
+        playSound: true, // Ensure sound is enabled
+        enableVibration: true,
+        importance: Importance.high,
+        priority: Priority.high,
+      ),
+    );
+
+    await flutterLocalNotificationsPlugin.show(
+      DateTime.now().hashCode,
+      title,
+      body,
+      notificationDetails,
+    );
+  }
+}
 
 class PushNotificationService {
   Future<void> setupInteractedMessage() async {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       // navigatorKey.currentState!.pushNamed(Routes.notificationsList);
@@ -47,6 +64,7 @@ class PushNotificationService {
 
   registerNotificationListeners() async {
     AndroidNotificationChannel channel = androidNotificationChannel();
+
     final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
     await flutterLocalNotificationsPlugin
@@ -71,7 +89,7 @@ class PushNotificationService {
     );
     await FirebaseMessaging.instance
         .setForegroundNotificationPresentationOptions(
-      alert: true, // Required to display a heads up notification
+      alert: true,
       badge: true,
       sound: true,
     );
@@ -89,20 +107,16 @@ class PushNotificationService {
             android: AndroidNotificationDetails(
               channel.id,
               channel.name,
-              // channel.description,
-              icon: android.smallIcon,
               playSound: true,
               enableVibration: true,
               importance: Importance.high,
               priority: Priority.high,
-              sound: const RawResourceAndroidNotificationSound('notification'),
-              // sound: RawResourceAndroidNotificationSound('pop'),
             ),
           ),
         );
       }
     });
-    // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }
 
   enableIOSNotifications() async {
@@ -117,12 +131,8 @@ class PushNotificationService {
   androidNotificationChannel() => const AndroidNotificationChannel(
         'high_importance_channel', // id
         'High Importance Notifications', // title
-        // 'This channel is used for important notifications.', // description
-
         playSound: true,
         enableVibration: true,
-        importance: Importance.high,
-        sound: RawResourceAndroidNotificationSound('notification'),
-        // sound: RawResourceAndroidNotificationSound('pop'),
+        importance: Importance.max,
       );
 }

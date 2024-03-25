@@ -1,9 +1,9 @@
 // ignore_for_file: unnecessary_import
 
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:room_rental/blocs/application/application_bloc.dart';
 import 'package:room_rental/blocs/cubits/change_locale_cubit/change_locale_cubit.dart';
 import 'package:room_rental/blocs/cubits/user_data/user_data_cubit.dart';
@@ -21,13 +21,21 @@ import 'package:room_rental/utils/constants/storage_keys.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+
+Future<bool> requestNotificationPermission() async {
+  final status = await Permission.notification.request();
+
+  if (status.isGranted) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
+  await requestNotificationPermission();
+  // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await PushNotificationService().setupInteractedMessage();
   var token = await Storage.getValue(StorageKeys.accessToken);
   bool isTknExpired = isTokenExpired(token);

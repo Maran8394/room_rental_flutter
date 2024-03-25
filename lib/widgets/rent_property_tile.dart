@@ -1,4 +1,4 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+// ignore_for_file: public_member_api_docs, sort_constructors_first, use_build_context_synchronously
 import 'dart:io';
 
 import 'package:camera/camera.dart';
@@ -75,7 +75,6 @@ class _RentPropertyExpansionTileState extends State<RentPropertyExpansionTile>
 
   @override
   Widget build(BuildContext context) {
-    print(widget.tax);
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       child: Theme(
