@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:room_rental/models/response_models/dashboard_chart_data.dart';
+import 'package:room_rental/models/response_models/notifications_model.dart';
 import 'package:room_rental/models/response_models/payment_page_model.dart';
 import 'package:room_rental/models/response_models/service_request_list.dart';
 import 'package:room_rental/models/response_models/tenant_rental_record_model.dart';
@@ -75,6 +76,20 @@ class UserRepo {
           await _apiRequestService.getRequest<TenantRentalRecordList>(
         requestUrl,
         (json) => TenantRentalRecordList.fromMap(json),
+      );
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<NotificationsModel>? getNotifications({String? month}) async {
+    Uri requestUrl = Uri.parse("${ApiUrls.getNotifications}?month=$month");
+    setAuthToken();
+    try {
+      var response = await _apiRequestService.getRequest<NotificationsModel>(
+        requestUrl,
+        (json) => NotificationsModel.fromMap(json),
       );
       return response;
     } catch (e) {

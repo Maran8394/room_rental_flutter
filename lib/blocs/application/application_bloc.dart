@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:room_rental/models/response_models/dashboard_chart_data.dart';
+import 'package:room_rental/models/response_models/notifications_model.dart';
 import 'package:room_rental/models/response_models/payment_page_model.dart';
 import 'package:room_rental/models/response_models/service_request_list.dart';
 import 'package:room_rental/models/response_models/tenant_rental_record_model.dart';
@@ -21,6 +22,19 @@ class ApplicationBloc extends Bloc<ApplicationEvent, ApplicationState> {
       } catch (e) {
         emit(GetPropertiesFailed(errorMessage: e.toString().substring(11)));
       }
+    });
+
+    on<GetNotifications>((event, emit) async {
+      emit(GetNotificationsInitState());
+      // try {
+      UserRepo repo = UserRepo();
+      NotificationsModel? responseData =
+          await repo.getNotifications(month: event.month);
+      emit(GetNotificationsDoneState(responseData: responseData!));
+      // } catch (e) {
+      //   emit(GetNotificationsFailedState(
+      //       errorMessage: e.toString().substring(11)));
+      // }
     });
 
     on<GetServiceRequests>((event, emit) async {

@@ -8,6 +8,7 @@ class ApiUrls {
   static const String getProperties = "$domain/api/user/properties/";
   static const String getServiceRequests = "$domain/api/user/service-requests/";
   static const String getBills = "$domain/api/user/bills";
+  static const String getNotifications = "$domain/api/user/notifications";
   static const String createBill = "$domain/api/bills/create";
   static const String updateBill = "$domain/api/bill/update/";
   static const String createServiceRequest =

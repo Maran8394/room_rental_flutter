@@ -102,8 +102,15 @@ class UpdateBillEvent extends ApplicationEvent {
 }
 
 class GetChartDataEvent extends ApplicationEvent {
-   final String? month;
-   GetChartDataEvent({
+  final String? month;
+  GetChartDataEvent({
+    this.month,
+  });
+}
+
+class GetNotifications extends ApplicationEvent {
+  final String? month;
+  GetNotifications({
     this.month,
   });
 }

@@ -150,3 +150,19 @@ class GetChartDataFailedState extends ApplicationState {
     required this.errorMessage,
   });
 }
+
+class GetNotificationsInitState extends ApplicationState {}
+
+class GetNotificationsDoneState extends ApplicationState {
+  final NotificationsModel responseData;
+  GetNotificationsDoneState({
+    required this.responseData,
+  });
+}
+
+class GetNotificationsFailedState extends ApplicationState {
+  final String errorMessage;
+  GetNotificationsFailedState({
+    required this.errorMessage,
+  });
+}
