@@ -7,7 +7,6 @@ import 'package:room_rental/models/response_models/tenant_rental_record_model.da
 import 'package:room_rental/utils/constants/branding_colors.dart';
 import 'package:room_rental/utils/constants/styles.dart';
 import 'package:room_rental/widgets/constant_widgets.dart';
-import 'package:room_rental/widgets/custom_text_button.dart';
 import 'package:room_rental/widgets/label_and_value.dart';
 
 class ContractDetails extends StatefulWidget {
@@ -95,16 +94,16 @@ class _ContractDetailsState extends State<ContractDetails> {
             ),
           ),
           SizedBox(height: context.deviceHeight * 0.02),
-          const CustomTextButton(text: "EXTEND CONTRACT"),
-          const SizedBox(height: 5),
-          const CustomTextButton(
-            text: "I'M LEAVING HOME",
-            needBorder: true,
-            borderColor: BrandingColors.primaryColor,
-            texColor: BrandingColors.primaryColor,
-            backgroundColor: BrandingColors.backgroundColor,
-          ),
-          SizedBox(height: context.deviceHeight * 0.02),
+          // const CustomTextButton(text: "EXTEND CONTRACT"),
+          // const SizedBox(height: 5),
+          // const CustomTextButton(
+          //   text: "I'M LEAVING HOME",
+          //   needBorder: true,
+          //   borderColor: BrandingColors.primaryColor,
+          //   texColor: BrandingColors.primaryColor,
+          //   backgroundColor: BrandingColors.backgroundColor,
+          // ),
+          // SizedBox(height: context.deviceHeight * 0.02),
         ],
       ),
     );

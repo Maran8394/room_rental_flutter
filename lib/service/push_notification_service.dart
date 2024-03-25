@@ -30,31 +30,15 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 // Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 //   await Firebase.initializeApp();
+
 // }
 
 class PushNotificationService {
-  Future<void> init() async {
-    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
-    AndroidInitializationSettings initializationSettingsAndroid =
-        const AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    final InitializationSettings initializationSettings =
-        InitializationSettings(
-            android: initializationSettingsAndroid, macOS: null);
-
-    await flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-    );
-  }
-
-  Future selectNotification(String payload) async {
-    //Handle notification tapped logic here
-  }
   Future<void> setupInteractedMessage() async {
     await Firebase.initializeApp();
+
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      //navigatorKey.currentState!.pushNamed(Routes.indexPage);
+      // navigatorKey.currentState!.pushNamed(Routes.notificationsList);
     });
 
     await enableIOSNotifications();
@@ -111,8 +95,8 @@ class PushNotificationService {
               enableVibration: true,
               importance: Importance.high,
               priority: Priority.high,
-              // sound: const RawResourceAndroidNotificationSound('notification'),
-              sound: const RawResourceAndroidNotificationSound('pop'),
+              sound: const RawResourceAndroidNotificationSound('notification'),
+              // sound: RawResourceAndroidNotificationSound('pop'),
             ),
           ),
         );

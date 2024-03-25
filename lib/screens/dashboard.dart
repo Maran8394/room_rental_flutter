@@ -3,6 +3,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:room_rental/blocs/cubits/user_data/user_data_cubit.dart';
+import 'package:room_rental/widgets/user_name.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import 'package:room_rental/blocs/application/application_bloc.dart';
@@ -44,6 +46,7 @@ class _DashboardState extends State<Dashboard> {
   int currentPropertyIndex = 0;
   int propertysCount = 2;
   List<_ChartData>? chartData;
+  
   @override
   void initState() {
     super.initState();
@@ -57,6 +60,7 @@ class _DashboardState extends State<Dashboard> {
     _bloc1!.add(GetPaymentPageBillsEvent(month: selectedMonth));
     _bloc2!.add(GetChartDataEvent(month: selectedMonth!));
     _bloc3!.add(GetPropertiesEvent());
+    context.read<UserDataCubit>().getUserData();
   }
 
   @override
@@ -70,13 +74,14 @@ class _DashboardState extends State<Dashboard> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Hi Maran!",
-              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                    color: BrandingColors.titleColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
+            const UserNameWidget(),
+            // Text(
+            //   "Hi Maran!",
+            //   style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+            //         color: BrandingColors.titleColor,
+            //         fontWeight: FontWeight.bold,
+            //       ),
+            // ),
             Text(
               "Please find your latest bill here!",
               style: Theme.of(context).textTheme.bodySmall!.copyWith(

@@ -418,74 +418,38 @@ class _CreateBillPageState extends State<CreateBillPage> {
                 child: CustomTextButton(
                   text: "DONE",
                   onPressed: () {
-                    Map<String, dynamic> requestData;
-                    if (notApplicableForRent.contains(widget.billType)) {
-                      requestData = {
-                        "month": month.text.toLowerCase(),
-                        "bill_type": widget.billType,
-                        "property": selectedProperty!.id,
-                        "remarks": remarks.text,
-                      };
-                    } else {
-                      if (_formKey.currentState!.validate() &&
-                          selectedFilePaths.isNotEmpty) {
+                    if (_formKey.currentState!.validate() &&
+                        selectedFilePaths.isNotEmpty) {
+                      Map<String, dynamic> requestData;
+                      if (!notApplicableForRent.contains(widget.billType)) {
                         requestData = {
                           "month": month.text.toLowerCase(),
                           "bill_type": widget.billType,
                           "bill_number": billNumber.text,
-                          "units": (units.text.trim().isNotEmpty)
-                              ? units.text.trim()
-                              : 0,
+                          "units": units.text,
                           "property": selectedProperty!.id,
                           "remarks": remarks.text,
                         };
                       } else {
-                        requestData = {};
-                        setState(() {
-                          notUploaded = true;
-                        });
+                        requestData = {
+                          "month": month.text.toLowerCase(),
+                          "bill_type": widget.billType,
+                          "property": selectedProperty!.id,
+                          "remarks": remarks.text,
+                        };
                       }
+
+                      _bloc!.add(
+                        CreateBillEvent(
+                          requestData: requestData,
+                          imagePath: selectedFilePaths,
+                        ),
+                      );
+                    } else {
+                      setState(() {
+                        notUploaded = true;
+                      });
                     }
-
-                    _bloc!.add(
-                      CreateBillEvent(
-                        requestData: requestData,
-                        imagePath: selectedFilePaths,
-                      ),
-                    );
-                    // if (_formKey.currentState!.validate() &&
-                    //     selectedFilePaths.isNotEmpty) {
-                    //   Map<String, dynamic> requestData;
-                    //   if (!notApplicableForRent.contains(widget.billType)) {
-                    //     requestData = {
-                    //       "month": month.text.toLowerCase(),
-                    //       "bill_type": widget.billType,
-                    //       "bill_number": billNumber.text,
-                    //       "units": units.text,
-                    //       "property": selectedProperty!.id,
-                    //       // "room": selectedRoom!.id,
-                    //       "remarks": remarks.text,
-                    //     };
-                    //   } else {
-                    //     requestData = {
-                    //       "month": month.text.toLowerCase(),
-                    //       "bill_type": widget.billType,
-                    //       "property": selectedProperty!.id,
-                    //       "remarks": remarks.text,
-                    //     };
-                    //   }
-
-                    //   _bloc!.add(
-                    //     CreateBillEvent(
-                    //       requestData: requestData,
-                    //       imagePath: selectedFilePaths,
-                    //     ),
-                    //   );
-                    // } else {
-                    //   setState(() {
-                    //     notUploaded = true;
-                    //   });
-                    // }
                   },
                 ),
               ),

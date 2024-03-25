@@ -99,6 +99,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
               ),
               children: <Widget>[
                 PaymentCard(
+                  isAllPaid: rentData.paid_status!,
                   title: "Rent",
                   amount: rentData.total_amount,
                   taxAmount: rentData.total_tax,
@@ -118,33 +119,20 @@ class _PaymentsPageState extends State<PaymentsPage> {
                     } else {
                       Navigator.pushNamed(
                         context,
-                        Routes.createBill,
-                        arguments: CreateBillPage(
+                        Routes.billDetailPage,
+                        arguments: BillDetailPage(
                           billType: "house_rent",
-                          month: selectedMonth,
-                          notGenProperties: rentData.not_gen_properties,
+                          bills: rentData.objs,
                         ),
                       ).then((value) {
                         _bloc!.add(GetPaymentPageBillsEvent());
                       });
                     }
                   },
-                  onBtnTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      Routes.createBill,
-                      arguments: CreateBillPage(
-                        billType: "house_rent",
-                        month: selectedMonth,
-                        notGenProperties: rentData.not_gen_properties,
-                      ),
-                    ).then((value) {
-                      _bloc!.add(GetPaymentPageBillsEvent());
-                    });
-                  },
                 ),
                 ConstantWidgets.labelSizedBox(context),
                 PaymentCard(
+                  isAllPaid: electricityData.paid_status!,
                   title: "Electricity",
                   amount: electricityData.total_amount,
                   taxAmount: electricityData.total_tax,
@@ -153,8 +141,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
                       electricityData.not_gen_properties!.length.toString(),
                   isAdminVerified: electricityData.admin_verified_status,
                   onTap: () {
-                    if (electricityData.admin_verified_status == true &&
-                        electricityData.not_gen_properties!.isEmpty) {
+                    if (electricityData.not_gen_properties!.isEmpty) {
                       setState(() {
                         if (activeElectricity == true) {
                           activeElectricity = false;
@@ -191,6 +178,8 @@ class _PaymentsPageState extends State<PaymentsPage> {
                 ),
                 ConstantWidgets.labelSizedBox(context),
                 PaymentCard(
+                  isAllPaid: serviceData.paid_status!,
+                  isDisabled: serviceData.objs!.isEmpty,
                   title: "Service",
                   amount: serviceData.total_amount,
                   taxAmount: serviceData.total_tax,
@@ -207,29 +196,14 @@ class _PaymentsPageState extends State<PaymentsPage> {
                         }
                       });
                     }
-                    // }
-                    // else {
-                    // Navigator.pushNamed(
-                    //   context,
-                    //   Routes.createBill,
-                    //   arguments: CreateBillPage(
-                    //     billType: "service",
-                    //     month: selectedMonth,
-                    //     notGenProperties: serviceData.not_gen_properties,
-                    //   ),
-                    // ).then((value) {
-                    //   _bloc!.add(GetPaymentPageBillsEvent());
-                    // });
-                    // }
                   },
                   onBtnTap: () {
                     Navigator.pushNamed(
                       context,
-                      Routes.createBill,
-                      arguments: CreateBillPage(
+                      Routes.billDetailPage,
+                      arguments: BillDetailPage(
                         billType: "service",
-                        month: selectedMonth,
-                        notGenProperties: serviceData.not_gen_properties,
+                        bills: serviceData.objs,
                       ),
                     ).then((value) {
                       _bloc!.add(GetPaymentPageBillsEvent());
@@ -238,6 +212,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
                 ),
                 ConstantWidgets.labelSizedBox(context),
                 PaymentCard(
+                  isAllPaid: waterData.paid_status!,
                   title: "Water",
                   amount: waterData.total_amount,
                   taxAmount: waterData.total_tax,

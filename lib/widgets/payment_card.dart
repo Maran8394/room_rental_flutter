@@ -8,6 +8,7 @@ class PaymentCard extends StatelessWidget {
   final Function()? onTap;
   final Function()? onBtnTap;
   final bool isActive;
+  final bool isAllPaid;
   final bool? isDisabled;
   final bool? isAdminVerified;
   final String title;
@@ -20,6 +21,7 @@ class PaymentCard extends StatelessWidget {
     this.onTap,
     this.onBtnTap,
     required this.isActive,
+    required this.isAllPaid,
     this.isDisabled,
     this.isAdminVerified,
     required this.title,
@@ -58,35 +60,31 @@ class PaymentCard extends StatelessWidget {
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     const Spacer(),
-                    if (isAdminVerified == true) ...[
+                    if (leftPropertiesCount != null &&
+                        leftPropertiesCount != "0") ...[
+                      CircleAvatar(
+                        radius: 13,
+                        child: Text(
+                          leftPropertiesCount.toString(),
+                        ),
+                      )
+                    ] else if (leftPropertiesCount == "0") ...[
                       Text(
                         "HK\$ $amount",
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
-                      SizedBox(width: MediaQuery.of(context).size.width * 0.02),
-                      Icon(
-                        (isActive)
-                            ? Icons.arrow_drop_up
-                            : Icons.arrow_drop_down,
-                        color: Colors.black,
-                      ),
-                    ] else ...[
-                      if (leftPropertiesCount != "0" &&
-                          leftPropertiesCount != null) ...[
-                        CircleAvatar(
-                          radius: 13,
-                          child: Text(
-                            leftPropertiesCount.toString(),
-                          ),
-                        )
-                      ] else if (leftPropertiesCount == null)
-                        ...[]
-                      else ...[
+                      if (isAdminVerified != true) ...[
                         Icon(
                           Icons.hourglass_bottom_rounded,
                           color: Colors.amberAccent.shade700,
                         )
-                      ],
+                      ]
+                    ] else ...[
+                      if (amount != null)
+                        Text(
+                          "HK\$ $amount",
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
                     ],
                   ],
                 ),
@@ -103,7 +101,7 @@ class PaymentCard extends StatelessWidget {
                       ),
                       const Spacer(),
                       Text(
-                        "HK\$ $taxAmount",
+                        (taxAmount != null) ? "HK\$ $taxAmount" : "HK\$ 0",
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
                       SizedBox(width: MediaQuery.of(context).size.width * 0.02),
@@ -115,12 +113,13 @@ class PaymentCard extends StatelessWidget {
                   width: double.infinity,
                   height: MediaQuery.of(context).size.height * 0.05,
                   child: CustomTextButton(
-                    text: "DOCUMENTS",
+                    isDisabled: (isAdminVerified == true) ? false : true,
+                    text: (isAllPaid == true) ? "PAID" : "DOCUMENTS",
                     textStyle:
                         Theme.of(context).textTheme.titleMedium!.copyWith(
                               color: Colors.white,
                             ),
-                    onPressed: onBtnTap,
+                    onPressed: (isAdminVerified == true) ? onBtnTap : () {},
                   ),
                 ),
               ],

@@ -1,5 +1,6 @@
 // ignore_for_file: unnecessary_import
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -26,8 +27,8 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  PushNotificationService ser = PushNotificationService();
-  ser.init();
+
+  await PushNotificationService().setupInteractedMessage();
   var token = await Storage.getValue(StorageKeys.accessToken);
   bool isTknExpired = isTokenExpired(token);
 
