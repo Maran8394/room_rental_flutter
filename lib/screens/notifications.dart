@@ -6,7 +6,6 @@ import 'package:room_rental/screens/index_page.dart';
 import 'package:room_rental/utils/constants/branding_colors.dart';
 import 'package:room_rental/utils/constants/methods.dart';
 import 'package:room_rental/utils/constants/routes.dart';
-import 'package:room_rental/utils/constants/styles.dart';
 import 'package:room_rental/widgets/month_dropdown.dart';
 
 class NotificationsPage extends StatefulWidget {
